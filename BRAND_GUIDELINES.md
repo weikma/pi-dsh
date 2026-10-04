@@ -2,7 +2,7 @@
 
 English | [中文](BRAND_GUIDELINES.zh.md)
 
-Use **Pi-DSH** as the project and application name, and **pi-dsh** as the GitHub repository name.
+Use **Pi DSH** as the application display name, **Pi-DSH** as the project name, and **pi-dsh** as the GitHub repository name.
 
 Pi-DSH is an independent community project. Describe its use of Pi and DeepSeek Harness components accurately; do not imply that either upstream project officially maintains or endorses it.
 

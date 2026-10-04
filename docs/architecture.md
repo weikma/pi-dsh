@@ -1,6 +1,6 @@
 # Pi-DSH architecture
 
-Electron and local Web share React, the loopback Host and bridge. Official Pi runs independently.
+Electron and Web share React, Host and bridge. Pi runs independently.
 
 ## Runtime ownership
 
@@ -22,7 +22,7 @@ Before project selection, the GUI reads native provider/model metadata using the
 
 `office-preview.ts` uses the bundled Python to read XLSX/CSV/TSV sheets and DOCX/PPTX content for the Files panel. Spreadsheet previews preserve values and formulas without calculating them; document HTML is sanitized and displayed in a sandboxed frame. These read-only previews do not render printed pages. Conversation mathematics uses the retained Markdown/KaTeX pipeline.
 
-The Host resolves preview, download and native file-action targets against real registered project roots, rejects escaping symlinks and caps file sizes. Browsing needs no chat. `file-actions.ts` remembers a user-selected editor in GUI preferences and launches canonical files without a shell. Native IPC accepts only the trusted main frame and specific actions; it accepts no executable from the renderer. Web offers file download.
+The Host validates previews, downloads and application targets against registered project roots, rejecting escaping symlinks. `directory-picker.ts` browses and creates folders before registration. `local-applications.ts` discovers installed applications and joins pending launchers at shutdown. Both carriers open canonical paths without a shell; `file-actions.ts` remembers the selected editor. Electron supplies native dialogs and shell actions through Host hooks. Renderer requests select known application IDs, never executables. Native IPC accepts only trusted main-frame actions.
 
 `terminals.ts` owns project PTYs, bounded screens and joined process-tree cleanup; disconnected clients expire after 20 seconds. `browser-guests.ts` isolates sandboxed webviews from Node, native IPC and the GUI origin. Project tabs retain their bodies; Web uses sandboxed iframes.
 

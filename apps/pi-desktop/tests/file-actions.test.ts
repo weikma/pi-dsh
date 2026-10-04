@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import { mkdir, mkdtemp, rm, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { editorLaunch, FileEditor, nativeFileRequest } from '../file-actions.ts'
+import { editorLaunch, FileEditor, fileActionRequest } from '../file-actions.ts'
 
 test('editor launches keep application names and filenames literal, with no renderer executable control', () => {
   const editor = join(tmpdir(), 'Editor with spaces.app')
@@ -11,7 +11,7 @@ test('editor launches keep application names and filenames literal, with no rend
   assert.deepEqual(editorLaunch('darwin', editor, file), { command: '/usr/bin/open', args: ['-a', editor, '--', file] })
   assert.deepEqual(editorLaunch('win32', editor, file), { command: editor, args: [file] })
   assert.throws(() => editorLaunch('darwin', 'relative.app', file), /Absolute/)
-  assert.throws(() => nativeFileRequest({ cwd: tmpdir(), path: file, action: 'execute', command: 'anything' }), /Unsupported/)
+  assert.throws(() => fileActionRequest({ cwd: tmpdir(), path: file, action: 'execute', command: 'anything' }), /Unsupported/)
 })
 
 test('editor preference survives restart and rejects non-application paths', async () => {

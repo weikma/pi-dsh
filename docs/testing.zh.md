@@ -1,6 +1,6 @@
 # Pi-DSH 测试
 
-`pnpm typecheck` 检查独立的 Host 与 Client 程序。`pnpm test` 运行 `apps/pi-desktop/tests` 中的本地测试，不执行历史 DSH 夹具。
+`pnpm typecheck` 检查 Host 与 Client。`pnpm test` 运行 `apps/pi-desktop/tests` 中的本地测试，不执行历史夹具。
 
 桥接测试覆盖 JSONL 响应关联、Unicode 分帧、流式呈现、交互扩展请求与等待子进程关闭。Pi 流程测试将选定的官方 CLI 连接到本地脚本模型，并检查真实文件与 Shell 效果、流式输出、取消和原生会话恢复。每个测试独立管理临时工作区、运行时目录与端口。
 
@@ -10,7 +10,7 @@
 
 [服务商解析测试](../apps/pi-desktop/tests/provider-runtime.test.ts)检查所选包的公共导出、独立 Node，以及拒绝包装器／私有 SDK 回退。[worker 测试](../apps/pi-desktop/tests/provider-worker.test.ts)验证实际 Pi ModelRuntime 的 API 密钥存储、退出登录、取消、配置保留和 EOF 后等待退出。脚本化 OAuth 回调检查提示及回调服务器清理，不完成第三方认证。[Host 测试](../apps/pi-desktop/tests/providers-host.test.ts)验证无需项目读取目录、安全 HTTP/SSE 登录状态，以及更换运行时的 worker 关闭。
 
-`pnpm test:compat` 对所选可执行文件检查公共 RPC。Pi 流程也验证公共历史扩展的用户／AI 节点分叉和中间工具调用节点导航，确认没有额外模型请求。[运行时隔离测试](../apps/pi-desktop/tests/runtime-isolation.test.ts)拒绝隐式 PATH 选择；[文件操作测试](../apps/pi-desktop/tests/file-actions.test.ts)检查字面启动参数和编辑器偏好；[Host 测试](../apps/pi-desktop/tests/host.test.ts)拒绝越界路径／符号链接。外部服务商及 OAuth 验收需要获授权的凭据，不能输出密钥。
+`pnpm test:compat` 检查所选可执行文件的公共 RPC。Pi 流程验证公共历史分叉和中间工具调用节点导航，不增加模型请求。[运行时隔离测试](../apps/pi-desktop/tests/runtime-isolation.test.ts)拒绝隐式 PATH 选择。外部服务商与 OAuth 验收需要获授权凭据；不要记录密钥。
 
 [配置测试](../apps/pi-desktop/tests/agent-configuration.test.ts) 覆盖原生 SDK 保存、资源编辑和 MCP 连接；Host 测试验证资源／请求使用独立 ID。
 
@@ -27,3 +27,5 @@ GUI 回归还验证项目分组、折叠持久化、行内搜索、置顶／归�
 [扩展验证](pi-desktop/extensions.zh.md#verification)涵盖包生命周期、进程树取消和可选的社区发布包检查。
 
 [终端测试](../apps/pi-desktop/tests/terminals.test.ts) 覆盖真实 PTY 输入、尺寸调整、恢复、中断及清理。[Host 检查](../apps/pi-desktop/tests/terminal-host.test.ts) 验证源限制和退出。打包验收检查终端 helper、浏览器导航、快捷键及标签状态保留。
+
+[本地文件测试](../apps/pi-desktop/tests/local-files.client.spec.tsx)覆盖导航、创建、过期响应和应用菜单。[Host 检查](../apps/pi-desktop/tests/local-files-host.test.ts)验证来源／项目边界；[启动进程检查](../apps/pi-desktop/tests/local-applications.test.ts)覆盖字面参数和取消。

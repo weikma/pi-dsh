@@ -2,7 +2,7 @@
 
 [English](BRAND_GUIDELINES.md) | 中文
 
-项目和应用名称使用 **Pi-DSH**，GitHub 仓库名称使用 **pi-dsh**。
+应用显示名称使用 **Pi DSH**，项目名称使用 **Pi-DSH**，GitHub 仓库名称使用 **pi-dsh**。
 
 Pi-DSH 是独立社区项目。请准确说明对 Pi 和 DeepSeek Harness 组件的使用，不要暗示它由任一上游项目官方维护或背书。
 

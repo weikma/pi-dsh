@@ -1,0 +1,16 @@
+.modal { width: min(580px, calc(100vw - 32px)); }
+.path { display: flex; align-items: center; gap: 8px; min-width: 0; margin-bottom: 12px; }
+.path > :first-child { flex: 1; min-width: 0; }
+.toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.spacer { flex: 1; }
+.folders { position: relative; height: min(270px, 35vh); overflow: auto; margin-top: 8px; padding: 4px; border: .5px solid var(--dsw-alias-border-l3); border-radius: var(--dsw-radius-md); }
+.folders ul { list-style: none; margin: 0; padding: 0; }
+.folders li > button { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 34px; padding: 7px 8px; border: none; border-radius: var(--dsw-radius-sm); background: transparent; color: var(--dsw-alias-label-primary); text-align: left; cursor: pointer; font: inherit; font-size: calc(13px + var(--dsw-ui-font-delta, 0px)); }
+.folders li > button:hover { background: var(--dsw-alias-interactive-bg-hover); }
+.folders li > button:disabled { opacity: .5; cursor: default; }
+.folders li > button > span { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.folders svg { flex: none; }
+.options { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 10px; color: var(--dsw-alias-label-secondary); font-size: calc(12px + var(--dsw-ui-font-delta, 0px)); }
+.options label { display: flex; align-items: center; gap: 6px; }
+.notice { margin: 0; padding: 12px; color: var(--dsw-alias-label-secondary); font-size: calc(13px + var(--dsw-ui-font-delta, 0px)); }
+.error { margin: 8px 0; color: var(--dsw-alias-state-error-primary); font-size: calc(13px + var(--dsw-ui-font-delta, 0px)); overflow-wrap: anywhere; }

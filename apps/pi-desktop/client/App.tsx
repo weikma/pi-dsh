@@ -32,6 +32,7 @@ import { ProjectToolbar } from './ProjectToolbar.tsx'
 import { HistorySidebar } from './HistorySidebar.tsx'
 import { useUnreadChats } from './useUnreadChats.ts'
 import { SettingsPanel } from './SettingsPanel.tsx'
+import { DirectoryPicker } from './DirectoryPicker.tsx'
 import { queuesOf, string } from './records.ts'
 import { translate, type Locale } from './i18n.ts'
 import { DEFAULT_TEXT_APPEARANCE, readTextAppearance, type TextAppearance } from '../appearance.ts'
@@ -111,7 +112,6 @@ export function App() {
   const [draftThinking, setDraftThinking] = useState<{ provider: string; model: string; level: string } | null>(null)
   const draftThinkingRef = useRef(draftThinking)
   draftThinkingRef.current = draftThinking
-  const [projectPath, setProjectPath] = useState('')
   const [name, setName] = useState('')
   const [runtime, setRuntime] = useState<RuntimeConfig | null>(null)
   const [runtimeArgs, setRuntimeArgs] = useState('[]')
@@ -465,7 +465,7 @@ export function App() {
     try {
       const result = await api.addProject(path.trim())
       const projectCwd = result.cwd ?? path.trim()
-      setProjects(result.projects); setCwd(projectCwd); setDialog(null); setProjectPath('')
+      setProjects(result.projects); setCwd(projectCwd); setDialog(null)
       if (next === 'open') {
         selectDraftProject(projectCwd)
         setProjectAction('open'); return
@@ -479,7 +479,7 @@ export function App() {
     } catch (reason) { setError(failureText(reason)) }
   }
   const chooseDirectory = async (next: typeof projectAction = 'open') => {
-    setProjectAction(next)
+    setProjectAction(next); setError('')
     if (window.piDesktop === undefined) { setDialog('project'); return }
     setDialog(null)
     try { const path = await window.piDesktop.pickDirectory(); if (path !== null) await addProject(path, next); else setProjectAction('open') }
@@ -1010,12 +1010,8 @@ export function App() {
       <Tooltip label={t('expandSidebar')} shortcutKeys={sidebarKeys} portal side="bottom"><button type="button" className={css.iconButton} aria-label={t('expandSidebar')} onClick={() => { setCollapsed(false); textarea.current?.focus() }}><IconPanelLeftOutlineRegular size={16} /></button></Tooltip>
       <Tooltip label={t('newSession')} portal side="bottom"><button type="button" className={css.iconButton} aria-label={t('newSession')} onClick={() => { startDraft(cwd) }}><IconPlusOutlineRegular size={16} /></button></Tooltip>
     </div>}
-    <Modal open={dialog === 'project'} title={t('addProject')} closeLabel={t('close')} backdropBlur={false} onClose={() => { setDialog(null); setProjectAction('open') }}
-      footer={<><Button onClick={() => { setDialog(null); setProjectAction('open') }}>{t('cancel')}</Button><Button variant="primary" disabled={projectPath.trim() === ''} onClick={() => { void addProject(projectPath) }}>{t('openProject')}</Button></>}>
-      {projectAction === 'send' && <p className={css.setupText}>{t('chooseProjectToSend')}</p>}
-      <form onSubmit={event => { event.preventDefault(); void addProject(projectPath) }}><label className={css.field}>{t('projectPath')}<Input data-modal-autofocus aria-label={t('projectPath')} placeholder={t('directoryPlaceholder')} value={projectPath} onChange={event => { setProjectPath(event.target.value) }} /></label></form>
-      {error !== '' && <p className={css.error}>{error}</p>}
-    </Modal>
+    {dialog === 'project' && <DirectoryPicker initialPath={cwd} hint={projectAction === 'send' ? t('chooseProjectToSend') : undefined} error={error} t={t}
+      close={() => { setDialog(null); setProjectAction('open') }} select={addProject} />}
     <Modal open={dialog === 'compact'} title={t('compact')} closeLabel={t('close')} backdropBlur={false} onClose={() => { if (!compactionSubmitting) setDialog(null) }}
       footer={<><Button onClick={() => { if (compactionSubmitting) { setCompactionStopRequested(true); void command({ type: 'abort' }).catch(reason => { setCompactionError(failureText(reason)) }) } else setDialog(null) }}>{t(compactionSubmitting ? 'stop' : 'cancel')}</Button><Button variant="primary" disabled={compactionSubmitting || refreshBlocked} onClick={() => { void compactFromDialog() }}>{t(compactionSubmitting ? 'compacting' : 'compact')}</Button></>}>
       <p className={css.setupText}>{t('slashCompactDescription')}</p>

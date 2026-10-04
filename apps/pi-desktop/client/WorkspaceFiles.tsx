@@ -1,10 +1,11 @@
 /** Read-only tree and file tabs share the Host's project boundary checks. */
 import { useEffect, useRef, useState } from 'react'
-import { Button, Menu, Tooltip, PathLabel, FileTypeIcon, IconFolderOpenOutlineRegular, IconChevronDownOutlineRegular, IconRefreshOutlineRegular, IconSearchOutlineRegular } from '@deepseek-ai/dsh-client-ui-primitives'
+import { Button, Tooltip, PathLabel, FileTypeIcon, IconFolderOpenOutlineRegular, IconChevronDownOutlineRegular, IconRefreshOutlineRegular, IconSearchOutlineRegular } from '@deepseek-ai/dsh-client-ui-primitives'
 import { api, type FilePreview } from './http.ts'
 import type { T } from './i18n.ts'
 import { FileContent } from './Conversation.tsx'
 import { OfficePreview } from './OfficePreview.tsx'
+import { OpenPathActions } from './OpenPathActions.tsx'
 import css from './WorkspacePanel.module.css'
 import shell from './App.module.css'
 
@@ -12,7 +13,7 @@ type Directory = Extract<FilePreview, { kind: 'directory' }>
 const message = (error: unknown): string => error instanceof Error ? error.message : String(error)
 
 /** Directory expansion never replaces the project tree; only files request new tabs. */
-export function ProjectFiles({ cwd, refresh, t, open }: { cwd: string; refresh: number; t: T; open(path: string): void }) {
+export function ProjectFiles({ cwd, refresh, active, t, open, feedback }: { cwd: string; refresh: number; active: boolean; t: T; open(path: string): void; feedback(message: string): void }) {
   const [folders, setFolders] = useState<Record<string, Directory>>({})
   const [expanded, setExpanded] = useState(new Set<string>())
   const [pending, setPending] = useState(new Set<string>())
@@ -68,7 +69,7 @@ export function ProjectFiles({ cwd, refresh, t, open }: { cwd: string; refresh: 
     </ul>
   }
   return <div className={css.body}>
-    <div className={css.toolbar}><PathLabel className={css.path} path={folders[rootKey]?.path ?? cwd} /><Tooltip label={t('refreshFiles')} portal><button type="button" className={shell.iconButton} disabled={pending.size > 0} aria-label={t('refreshFiles')} onClick={() => { setRevision(value => value + 1) }}><IconRefreshOutlineRegular size={16} /></button></Tooltip></div>
+    <div className={css.toolbar}><PathLabel className={css.path} path={folders[rootKey]?.path ?? cwd} /><OpenPathActions cwd={cwd} path={folders[rootKey]?.path ?? cwd} directory active={active} t={t} feedback={feedback} /><Tooltip label={t('refreshFiles')} portal><button type="button" className={shell.iconButton} disabled={pending.size > 0} aria-label={t('refreshFiles')} onClick={() => { setRevision(value => value + 1) }}><IconRefreshOutlineRegular size={16} /></button></Tooltip></div>
     <label className={css.search}><IconSearchOutlineRegular size={16} /><input type="search" aria-label={t('searchFiles')} placeholder={t('searchFiles')} value={query} onChange={event => { setQuery(event.target.value) }} /></label>
     <div className={css.tree}>{tree(rootKey, 0)}</div>
   </div>
@@ -80,8 +81,6 @@ export function FilePreviewTab({ cwd, path, refresh, active, t, feedback, open }
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [revision, setRevision] = useState(0)
-  const [menu, setMenu] = useState(false)
-  useEffect(() => { if (!active) setMenu(false) }, [active])
   useEffect(() => {
     const request = new AbortController()
     setLoading(true); setError('')
@@ -90,18 +89,11 @@ export function FilePreviewTab({ cwd, path, refresh, active, t, feedback, open }
       .finally(() => { if (!request.signal.aborted) setLoading(false) })
     return () => { request.abort() }
   }, [cwd, path, refresh, revision])
-  const native = window.piDesktop?.openFile
   const target = file?.path ?? path
-  const nativeAction = (action: 'editor' | 'chooseEditor' | 'system' | 'reveal'): void => {
-    setMenu(false)
-    if (native) void native({ cwd, path: target, action }).catch(reason => { feedback(message(reason)) })
-  }
   return <div className={css.body}>
     <div className={css.toolbar}><PathLabel path={target} className={css.path} />
       <Tooltip label={t('refreshFiles')} portal><button type="button" className={shell.iconButton} disabled={loading} aria-label={t('refreshFiles')} onClick={() => { setRevision(value => value + 1) }}><IconRefreshOutlineRegular size={16} /></button></Tooltip>
-      {native ? <><Button size="sm" onClick={() => { nativeAction('editor') }}>{t('openInEditor')}</Button><Menu portal align="end" open={menu} onClose={() => { setMenu(false) }} anchor={<button type="button" className={shell.iconButton} aria-label={t('fileActions')} aria-haspopup="menu" aria-expanded={menu} onClick={() => { setMenu(value => !value) }}><IconChevronDownOutlineRegular size={14} /></button>}
-        items={[{ id: 'chooseEditor', label: t('chooseEditor') }, { id: 'system', label: t('openWithSystem') }, { id: 'reveal', label: t('revealFile') }, { id: 'copy', label: t('copyPath') }]}
-        onSelect={id => { if (id === 'copy') { setMenu(false); void navigator.clipboard.writeText(target).then(() => { feedback(t('copied')) }).catch(reason => { feedback(message(reason)) }) } else if (id === 'chooseEditor' || id === 'system' || id === 'reveal') nativeAction(id) }} /></> : <a href={'/api/file-download?' + new URLSearchParams({ cwd, path: target })} download>{t('downloadFile')}</a>}
+      <OpenPathActions cwd={cwd} path={target} active={active} t={t} feedback={feedback} />
     </div>
     {error && <p className={css.notice} role="alert">{error} <Button size="sm" onClick={() => { setRevision(value => value + 1) }}>{t('retry')}</Button></p>}
     <div className={`${css.content} ${file?.kind === 'spreadsheet' || file?.kind === 'document' ? css.richPreview : ''}`}>

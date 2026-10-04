@@ -1,6 +1,6 @@
 # Pi-DSH 架构
 
-Electron 与本地 Web 共用 React、回环 Host 及桥接。官方 Pi 独立运行。
+Electron 和 Web 共享 React、Host 与桥接层，Pi 独立运行。
 
 ## 运行时归属
 
@@ -22,7 +22,7 @@ Electron 与本地 Web 共用 React、回环 Host 及桥接。官方 Pi 独立�
 
 `office-preview.ts` 使用随包 Python 读取 XLSX／CSV／TSV 工作表及 DOCX／PPTX 内容，供文件面板显示。电子表格预览保留值和公式，不计算公式；文档 HTML 经过清理，并显示在沙箱 frame 中。这些只读预览不渲染打印页面。对话数学使用保留的 Markdown／KaTeX 渲染链。
 
-Host 根据真实的已注册项目根目录解析预览、下载及原生文件操作目标，拒绝越界符号链接并限制文件大小。浏览文件无需对话。`file-actions.ts` 将用户选择的编辑器保存为 GUI 偏好，不通过 shell 启动规范化文件。原生 IPC 仅接受可信主 frame 的明确操作，不接受 renderer 提供可执行文件。Web 提供文件下载。
+Host 根据已登记项目根目录校验预览、下载和应用目标，拒绝越界符号链接。`directory-picker.ts` 在登记前浏览和创建文件夹。`local-applications.ts` 发现已安装应用，并在关闭时等待所属启动进程结束。两种载体都以无 shell 方式打开规范化路径；`file-actions.ts` 记住所选编辑器。Electron 通过 Host 钩子提供原生弹窗和系统操作。渲染器请求只选择已知应用 ID，不提供可执行文件。原生 IPC 只接受可信主 frame 的操作。
 
 `terminals.ts` 管理项目 PTY、有界屏幕及等待完成的进程树清理；客户端断开后 20 秒释放终端。`browser-guests.ts` 使沙箱 webview 与 Node、原生 IPC 及 GUI 源隔离。项目标签保留其内容；Web 使用沙箱 iframe。
 

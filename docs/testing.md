@@ -1,6 +1,6 @@
 # Pi-DSH testing
 
-`pnpm typecheck` checks separate Host and Client programs. `pnpm test` runs owner-local tests under `apps/pi-desktop/tests`; historical DSH fixtures are not executed.
+`pnpm typecheck` checks Host and Client. `pnpm test` runs tests in `apps/pi-desktop/tests`; Historical fixtures stay excluded.
 
 Bridge tests exercise correlated JSONL responses, Unicode framing, streamed presentation, interactive extension requests and quiescent subprocess teardown. The Pi flow test starts the selected official CLI against a scripted loopback provider and checks real file/shell effects, streaming, cancellation and native session resume. Temporary workspaces, runtime homes and ports are owned per test.
 
@@ -10,7 +10,7 @@ The [isolated first-run Pi test](../apps/pi-desktop/tests/pi-first-run.test.ts) 
 
 [Provider resolver tests](../apps/pi-desktop/tests/provider-runtime.test.ts) check selected-package public exports, independent Node, and refusal of wrappers/private SDK fallbacks. [Worker tests](../apps/pi-desktop/tests/provider-worker.test.ts) exercise actual Pi ModelRuntime API-key storage, logout, cancellation, configuration preservation and joined EOF. Scripted OAuth callbacks check prompts and callback-server cleanup; they do not complete third-party authentication. [Host tests](../apps/pi-desktop/tests/providers-host.test.ts) exercise project-free inventory, safe HTTP/SSE attempts and worker teardown during runtime replacement.
 
-`pnpm test:compat` checks public RPC against the selected executable. The Pi flow also verifies the public history extension's user/assistant forks and intermediate tool-call navigation with no extra model requests. [Runtime-isolation tests](../apps/pi-desktop/tests/runtime-isolation.test.ts) reject implicit PATH selection; [file-action tests](../apps/pi-desktop/tests/file-actions.test.ts) check literal launch arguments and editor preferences; [Host tests](../apps/pi-desktop/tests/host.test.ts) reject escaping paths/symlinks. External-provider and OAuth acceptance require authorized credentials; never log keys.
+`pnpm test:compat` checks public RPC against the selected executable. The Pi flow verifies public history forks and intermediate tool-call navigation without extra model requests. [Runtime-isolation tests](../apps/pi-desktop/tests/runtime-isolation.test.ts) reject implicit PATH selection. External-provider and OAuth acceptance require authorized credentials; never log keys.
 
 [Configuration tests](../apps/pi-desktop/tests/agent-configuration.test.ts) cover native SDK persistence, resource editing and MCP connections; Host tests verify separate resource/request IDs.
 
@@ -27,3 +27,5 @@ GUI regressions also verify project grouping, persisted disclosure, inline searc
 [Extension verification](pi-desktop/extensions.md#verification) covers package lifecycle, process-tree cancellation and optional checks of published community packages.
 
 [Terminal tests](../apps/pi-desktop/tests/terminals.test.ts) cover real PTY input, resize, recovery, interrupts and cleanup. [Host checks](../apps/pi-desktop/tests/terminal-host.test.ts) validate origins and shutdown. Packaged acceptance exercises terminal helpers, browser navigation, shortcuts and retained tabs.
+
+[Local file tests](../apps/pi-desktop/tests/local-files.client.spec.tsx) cover navigation, creation, stale responses and application menus. [Host checks](../apps/pi-desktop/tests/local-files-host.test.ts) enforce origin/project boundaries; [launcher checks](../apps/pi-desktop/tests/local-applications.test.ts) cover literal arguments and cancellation.

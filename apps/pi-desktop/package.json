@@ -1,6 +1,6 @@
 {
   "name": "@pi-dsh/desktop",
-  "version": "0.2.0-rc.56",
+  "version": "0.2.0-rc.58",
   "private": true,
   "type": "module",
   "main": "dist/main.mjs",
@@ -21,5 +21,5 @@
     "node-pty": "1.1.0",
     "parse5": "8.0.1"
   },
-  "description": "Pi-DSH desktop application and shared local Web interface"
+  "description": "Pi DSH desktop application and shared local Web interface"
 }

@@ -11,6 +11,7 @@ import type { MarketplaceQuery, MarketplacePage, MarketplaceDetail } from '../br
 import { isUnreadChat, type UnreadChat, type UnreadReceipt } from '../unread-types.ts'
 import { isJsonObject } from '../bridge/types.ts'
 import type { TerminalId, TerminalInfo } from '../terminal-types.ts'
+import type { DirectoryListing, FileActionRequest, FileActionResult, LocalApplicationsView } from '../local-files-types.ts'
 
 /** A project directory registered on the local Host. */
 export interface Project { cwd: string; name: string }
@@ -67,6 +68,10 @@ function post<T>(path: string, body: object): Promise<T> {
 
 /** Local application requests, independent of either agent SDK. */
 export const api = {
+  directories: (path?: string, signal?: AbortSignal): Promise<DirectoryListing> => request('/api/directories' + (path ? '?' + new URLSearchParams({ path }) : ''), { signal }),
+  createDirectory: (path: string, name: string): Promise<{ path: string }> => post('/api/directories', { path, name }),
+  localApplications: (signal?: AbortSignal): Promise<LocalApplicationsView> => request('/api/applications', { signal }),
+  openPath: (value: FileActionRequest): Promise<FileActionResult> => post('/api/file-actions', value),
   createTerminal: (cwd: string): Promise<TerminalInfo> => post('/api/terminals', { cwd, path: '.' }),
   writeTerminal: (id: TerminalId, data: string): Promise<{ ok: true }> => post(`/api/terminals/${encodeURIComponent(id)}/write`, { data }),
   resizeTerminal: (id: TerminalId, cols: number, rows: number): Promise<{ ok: true }> => post(`/api/terminals/${encodeURIComponent(id)}/resize`, { cols, rows }),

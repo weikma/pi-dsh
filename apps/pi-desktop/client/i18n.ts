@@ -1,5 +1,10 @@
 /** Typed product copy for the shared Desktop and Web interface. */
 export const en = {
+  browseDirectory: 'Browse', homeDirectory: 'Home', newFolder: 'New folder', folderName: 'Folder name', createFolder: 'Create',
+  searchFolders: 'Search folders', folders: 'Folders', noMatchingFolders: 'No folders to show', showHiddenFolders: 'Show dot-prefixed folders',
+  directoryBrowseFailed: 'Could not read this folder. Check its path and permissions.', createFolderFailed: 'Could not create the folder. Check its name, permissions, and whether it already exists.',
+  openInApplication: 'Open in…', openInFileManager: 'Open in file manager', editorApplications: 'Editors', terminalApplications: 'Terminals', browseApplications: 'Choose an application…', retryApplications: 'Reload applications',
+  fileOpenRequested: 'Opening request sent', openApplicationFailed: 'Could not open this item. Try again or choose another application.', backToFileActions: 'Back',
   thinkingUnavailable: 'No readable thinking text was returned.',
   resizeHistory: 'Resize conversation history', resizeWorkspace: 'Resize workspace panel',
   workspacePanel: 'Workspace panel', newTab: 'New tab', closeTab: 'Close tab', splitPanel: 'Split panel', dockPanel: 'Dock panel', moveTab: 'Move tab',
@@ -99,7 +104,7 @@ export const en = {
   extensionNativeSetupHint: "Use pi install to add a package and pi config to manage its resources. Existing native packages appear here after refresh.",
   projectTrustHint: "Pi has not trusted this project’s configuration. Its skills, prompts, extensions, and MCP servers remain inactive.", reviewProjectTrust: "Review project trust", trustProject: "Trust this project", trustProjectHint: "Trusting lets Pi load this project’s settings and resources, including executable extensions and MCP commands. Continue only if you trust the project’s authors.",
   unsavedChanges: "Unsaved changes", keepEditing: "Keep editing", discardChanges: "Discard changes", unsavedChangesHint: "Your edits have not been saved. Keep editing or discard them to leave.",
-  generalSettingsHint: "Preferences for your Pi-DSH workspace.",
+  generalSettingsHint: "Preferences for your Pi DSH workspace.",
   languageHint: "Choose the language used by the interface.",
   appearanceHint: "Choose a light, dark, or system appearance. Changes apply immediately.",
   interfaceSettings: 'Interface settings', interfaceSettingsHint: 'Choose the app theme and interface text size. Changes apply immediately.',
@@ -200,7 +205,7 @@ export const en = {
   openInEditor: 'Open in editor', chooseEditor: 'Choose another editor…', openWithSystem: 'Open with default app', revealFile: 'Show in file manager', copyPath: 'Copy file path', fileActions: 'File actions', downloadFile: 'Download file', binaryPreview: 'Preview is unavailable for this file. Open it in another app or download it.',
   messageActions: 'Branch from this message', continueHere: 'Continue from here', branchHint: 'Choose a user message or an AI response. Continue in this session or create a new chat; existing branches remain available.', searchHistory: 'Search history', userMessage: 'You', assistantMessage: 'Pi', historySummary: 'Summary', currentPosition: 'Current position', emptyMessage: 'Message without text',
   runtimeSource: 'Active runtime', runtimeBundled: 'Desktop bundled Pi', runtimeExternal: 'Explicit external Pi', useBundled: 'Use bundled Pi', runtimeIsolation: 'Desktop uses its own Pi installation. Upgrading the pi command in your terminal does not change it.',
-  product: 'Pi-DSH', newSession: 'New chat', addProject: 'Add project', projects: 'Projects',
+  product: 'Pi DSH', newSession: 'New chat', addProject: 'Add project', projects: 'Projects',
   noProjects: 'Add a project to start a chat', noSessions: 'No chats yet', chooseProject: 'Choose a project',
   projectPath: 'Project directory', directoryPlaceholder: '/path/to/project', openProject: 'Open project',
   cancel: 'Cancel', close: 'Close', retry: 'Retry', rename: 'Rename chat', sessionName: 'Chat name', save: 'Save',
@@ -285,6 +290,11 @@ export type Locale = 'zh' | 'en'
 export type CopyKey = keyof typeof en
 
 const zh: Record<CopyKey, string> = {
+  browseDirectory: '浏览', homeDirectory: '主目录', newFolder: '新建文件夹', folderName: '文件夹名称', createFolder: '创建',
+  searchFolders: '搜索文件夹', folders: '文件夹', noMatchingFolders: '没有可显示的文件夹', showHiddenFolders: '显示以点开头的文件夹',
+  directoryBrowseFailed: '无法读取此文件夹，请检查路径和访问权限', createFolderFailed: '无法创建文件夹，请检查名称、访问权限和是否已存在',
+  openInApplication: '打开方式…', openInFileManager: '在文件管理器中打开', editorApplications: '编辑器', terminalApplications: '终端', browseApplications: '选择应用…', retryApplications: '重新查找应用',
+  fileOpenRequested: '已发送打开请求', openApplicationFailed: '无法打开此项目，请重试或选择其他应用', backToFileActions: '返回',
   thinkingUnavailable: '未收到可展示的思考内容',
   resizeHistory: '调整对话历史宽度', resizeWorkspace: '调整工作区面板宽度',
   workspacePanel: '工作区面板', newTab: '新标签页', closeTab: '关闭标签页', splitPanel: '拆分面板', dockPanel: '停靠面板', moveTab: '移动标签页',
@@ -383,7 +393,7 @@ const zh: Record<CopyKey, string> = {
   extensionNativeSetupHint: "使用 pi install 添加包，使用 pi config 管理包内资源，已有原生包在刷新后显示于此",
   projectTrustHint: "Pi 尚未信任此项目的配置，项目技能、提示模板、扩展和 MCP 服务保持未启用状态", reviewProjectTrust: "查看项目信任", trustProject: "信任此项目", trustProjectHint: "信任后，Pi 可加载项目设置与资源，包括可执行的扩展和 MCP 命令。请确认你信任此项目的作者",
   unsavedChanges: "尚未保存", keepEditing: "继续编辑", discardChanges: "放弃修改", unsavedChangesHint: "修改尚未保存，可以继续编辑或放弃修改后离开",
-  generalSettingsHint: "设置 Pi-DSH 工作区的使用偏好",
+  generalSettingsHint: "设置 Pi DSH 工作区的使用偏好",
   languageHint: "选择界面显示语言",
   appearanceHint: "选择浅色、深色或跟随系统，修改后立即生效",
   interfaceSettings: '界面设置', interfaceSettingsHint: '选择应用主题和界面字号，修改后立即生效',
@@ -484,7 +494,7 @@ const zh: Record<CopyKey, string> = {
   openInEditor: '在编辑器中打开', chooseEditor: '选择其他编辑器…', openWithSystem: '使用默认应用打开', revealFile: '在文件管理器中显示', copyPath: '复制文件路径', fileActions: '文件操作', downloadFile: '下载文件', binaryPreview: '暂不支持预览此文件，可在其他应用中打开或下载',
   messageActions: '从这条消息分支', continueHere: '从此处继续', branchHint: '选择用户消息或 AI 回复，在当前会话继续或创建新对话；原有分支仍可访问', searchHistory: '搜索历史', userMessage: '你', assistantMessage: 'Pi', historySummary: '摘要', currentPosition: '当前位置', emptyMessage: '无文本消息',
   runtimeSource: '当前运行时', runtimeBundled: 'Desktop 内置 Pi', runtimeExternal: '显式选择的外部 Pi', useBundled: '使用内置 Pi', runtimeIsolation: 'Desktop 使用独立的 Pi 安装，升级终端中的 pi 命令不会改变它',
-  product: 'Pi-DSH', newSession: '新建对话', addProject: '添加项目', projects: '项目',
+  product: 'Pi DSH', newSession: '新建对话', addProject: '添加项目', projects: '项目',
   noProjects: '添加项目，开始对话', noSessions: '还没有对话', chooseProject: '选择项目',
   projectPath: '项目目录', directoryPlaceholder: '/path/to/project', openProject: '打开项目',
   cancel: '取消', close: '关闭', retry: '重试', rename: '重命名对话', sessionName: '对话名称', save: '保存',

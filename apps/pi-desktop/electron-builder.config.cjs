@@ -6,7 +6,9 @@ const { execFile } = require('node:child_process')
 const { promisify } = require('node:util')
 const { Arch } = require('electron-builder')
 module.exports = {
-  appId: 'im.pi.desktop', productName: 'Pi-DSH',
+  appId: 'im.pi.desktop', productName: 'Pi DSH',
+  // Electron's package identity keeps the existing native profile and runtime selection.
+  extraMetadata: { name: '@deepseek-ai/pi-desktop' },
   directories: { app: 'apps/pi-desktop', output: 'release' },
   files: ['dist/**', '!dist/provider-worker.mjs', '!dist/package-worker.mjs', '!dist/pi-session-controls.mjs', 'assets/**', 'package.json'],
   asar: true,

@@ -23,7 +23,6 @@ contextBridge.exposeInMainWorld('piDesktop', {
   pickDirectory: (): Promise<string | null> => ipcRenderer.invoke('pi-desktop:pick-directory'),
   openExternal: (url: string): Promise<void> => ipcRenderer.invoke('pi-desktop:open-external', url),
   openPiTerminal: (cwd?: string): Promise<void> => ipcRenderer.invoke('pi-desktop:open-pi-terminal', cwd),
-  openFile: (request: unknown): Promise<void> => ipcRenderer.invoke('pi-desktop:open-file', request),
   createBrowser: (): Promise<{ id: string; partition: string }> => ipcRenderer.invoke('pi-desktop:create-browser'),
   closeBrowser: (id: string): Promise<void> => ipcRenderer.invoke('pi-desktop:close-browser', id),
   ...(process.platform === 'darwin' ? { setUnreadCount: (count: number): Promise<void> => ipcRenderer.invoke('pi-desktop:unread-count', count) } : {}),

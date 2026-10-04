@@ -80,7 +80,7 @@ function ProjectPanel(props: Props & { selected: boolean }) {
     const pane = findTabPane(state, tab.id)
     const active = selected && visible && interactive && (pane?.host === 'float' || pane?.activeTabId === tab.id)
     switch (tab.kind) {
-      case 'files': return <ProjectFiles cwd={cwd} refresh={props.refresh} t={t} open={openFile} />
+      case 'files': return <ProjectFiles cwd={cwd} refresh={props.refresh} active={active} t={t} open={openFile} feedback={props.feedback} />
       case 'file': return <FilePreviewTab cwd={cwd} path={tab.contentId} refresh={props.refresh} active={active} t={t} feedback={props.feedback} open={openFile} />
       case 'terminal': return <Suspense fallback={<p className={css.notice}>{t('terminalStarting')}</p>}><TerminalTab cwd={cwd} active={active} t={t} /></Suspense>
       case 'browser': return <BrowserTab cwd={cwd} active={active} t={t} />

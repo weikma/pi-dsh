@@ -22,6 +22,9 @@ import { publicRuntimeArgs, restoreRuntimeArgs } from './runtime/public-args.ts'
 import { UnreadChats } from './unread-chats.ts'
 import { ProjectGit } from './project-git.ts'
 import { Terminals, type TerminalShell } from './terminals.ts'
+import { createDirectory, listDirectories } from './directory-picker.ts'
+import { LocalApplications, type NativeApplications } from './local-applications.ts'
+import { fileActionRequest } from './file-actions.ts'
 
 const APP_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), import.meta.url.endsWith('.ts') ? '.' : '..')
 const MIME: Record<string, string> = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2', '.json': 'application/json' }
@@ -67,6 +70,10 @@ export interface HostOptions {
   environmentReady?: Promise<void>
   /** Explicit Host-owned shell selection, independent of renderer requests. */
   terminalShell?: TerminalShell
+  /** Electron owns its native dialogs; the Host resolves and authorizes every target first. */
+  nativeApplications?: NativeApplications
+  /** An explicit application adapter belongs to this Host and is closed with it. */
+  localApplications?: LocalApplications
 }
 
 interface HostRuntimeServices { bundled: BundledRuntime | undefined; office: OfficePreviewer; bridge: PiBridge }
@@ -90,6 +97,7 @@ export async function startHost(options: HostOptions = {}) {
   const marketplace = new PackageMarketplace()
   const terminals = new Terminals(options.terminalShell)
   const home = options.home ?? process.env.PI_DESKTOP_HOME ?? join(homedir(), '.pi-desktop')
+  const applications = options.localApplications ?? new LocalApplications(join(home, 'editor.json'), { native: options.nativeApplications })
   const appRoot = options.appRoot ?? APP_ROOT
   const staticRoot = options.staticRoot ?? join(appRoot, 'dist', 'client')
   await mkdir(home, { recursive: true, mode: 0o700 })
@@ -264,6 +272,22 @@ export async function startHost(options: HostOptions = {}) {
       response.writeHead(204, { 'access-control-allow-methods': 'GET, POST', 'access-control-allow-headers': 'content-type' }); response.end(); return
     }
     const address = new URL(request.url ?? '/', url)
+    if (address.pathname === '/api/directories') {
+      if (request.method === 'GET') json(response, await listDirectories(address.searchParams.get('path') ?? undefined))
+      else if (request.method === 'POST') json(response, await createDirectory(await readBody(request)))
+      else json(response, { error: 'Unsupported directory operation' }, 405)
+      return
+    }
+    if (address.pathname === '/api/applications' && request.method === 'GET') {
+      await options.environmentReady
+      json(response, await applications.list()); return
+    }
+    if (address.pathname === '/api/file-actions' && request.method === 'POST') {
+      const action = fileActionRequest(await readBody(request))
+      const target = await resolveProjectFile(action)
+      await options.environmentReady
+      json(response, await applications.open(action, target)); return
+    }
     if (address.pathname === '/api/unread/events' && request.method === 'GET') {
       response.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-store', connection: 'keep-alive' })
       unreadSubscribers.add(response)
@@ -629,6 +653,7 @@ export async function startHost(options: HostOptions = {}) {
       closing = true
       const gitClosed = projectGit.close()
       const terminalsClosed = terminals.close()
+      const applicationsClosed = applications.close()
       for (const subscriber of subscribers.keys()) subscriber.end()
       subscribers.clear()
       for (const subscriber of unreadSubscribers) subscriber.end()
@@ -637,7 +662,7 @@ export async function startHost(options: HostOptions = {}) {
         // Preparation owns no Pi child until a route acquires it, but its copy must still finish.
         await preparation.catch(error => { void error /* Failed preparation acquired no runtime processes. */ })
         // Closing management workers cancels package process groups before waiting for their serialized requests.
-        const resources = await Promise.allSettled([closeProviders(), runtimeWrites, marketplace.close(), gitClosed, terminalsClosed])
+        const resources = await Promise.allSettled([closeProviders(), runtimeWrites, marketplace.close(), gitClosed, terminalsClosed, applicationsClosed])
         resources.push(...await Promise.allSettled([clearSetupLaunchers(), prepared?.office.close(), prepared?.bridge.dispose(), writes]))
         resources.push(...await Promise.allSettled([unread.close()]))
         const failures = resources.flatMap(result => result.status === 'rejected' ? [result.reason] : [])

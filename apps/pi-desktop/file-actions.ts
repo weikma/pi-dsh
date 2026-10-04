@@ -1,19 +1,21 @@
 /** Native actions operate on Host-resolved project files and user-selected applications. */
-import { execFile, spawn } from 'node:child_process'
 import { access, readFile, stat, writeFile, mkdir, rename, rm } from 'node:fs/promises'
-import { promisify } from 'node:util'
 import { constants } from 'node:fs'
 import { dirname, extname, isAbsolute, join } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { isJsonObject } from './bridge/types.ts'
+import { LOCAL_APPLICATION_IDS, type FileActionRequest, type LocalApplicationId } from './local-files-types.ts'
 
-/** A specific native action; executable paths never come from model output. */
-export interface NativeFileRequest { cwd: string; path: string; action: 'editor' | 'chooseEditor' | 'system' | 'reveal' }
-
-/** Validate the native wire request before resolving it on the loopback Host. */
-export function nativeFileRequest(value: unknown): NativeFileRequest {
+/** Validate a user action before the Host resolves its registered project and application. */
+export function fileActionRequest(value: unknown): FileActionRequest {
   if (!isJsonObject(value) || typeof value.cwd !== 'string' || !isAbsolute(value.cwd) || typeof value.path !== 'string' || !value.path) throw new Error('A project file is required')
   const action = value.action
+  if (action === 'application') {
+    const applicationId = value.applicationId
+    const known = (id: unknown): id is LocalApplicationId => LOCAL_APPLICATION_IDS.some(candidate => candidate === id)
+    if (!known(applicationId)) throw new Error('Choose an available application')
+    return { cwd: value.cwd, path: value.path, action, applicationId }
+  }
   if (action !== 'editor' && action !== 'chooseEditor' && action !== 'system' && action !== 'reveal') throw new Error('Unsupported file action')
   return { cwd: value.cwd, path: value.path, action }
 }
@@ -38,12 +40,15 @@ export class FileEditor {
       throw error
     }
   }
-  async choose(path: string): Promise<void> {
+  async choose(path: string, signal?: AbortSignal): Promise<void> {
     await this.validate(path)
+    signal?.throwIfAborted()
     await mkdir(dirname(this.preferencesPath), { recursive: true })
+    signal?.throwIfAborted()
     const temporary = join(dirname(this.preferencesPath), '.editor-' + randomUUID() + '.json')
     try {
       await writeFile(temporary, JSON.stringify({ path }) + '\n', { mode: 0o600, flag: 'wx' })
+      signal?.throwIfAborted()
       await rename(temporary, this.preferencesPath)
     } finally { await rm(temporary, { force: true }) }
   }
@@ -53,16 +58,5 @@ export class FileEditor {
     if (this.platform === 'darwin' ? !info.isDirectory() || extname(path).toLowerCase() !== '.app' : !info.isFile()) throw new Error('Select an editor application')
     if (this.platform === 'win32' && extname(path).toLowerCase() !== '.exe') throw new Error('Select an executable editor')
     if (this.platform !== 'darwin' && this.platform !== 'win32') await access(path, constants.X_OK)
-  }
-  /** The chosen GUI app is user-owned after spawn; Desktop does not await or terminate it. */
-  async open(editor: string, file: string): Promise<void> {
-    await this.validate(editor)
-    const launch = editorLaunch(this.platform, editor, file)
-    if (this.platform === 'darwin') { await promisify(execFile)(launch.command, launch.args, { timeout: 15_000 }); return }
-    await new Promise<void>((resolve, reject) => {
-      const child = spawn(launch.command, launch.args, { stdio: 'ignore', windowsHide: false })
-      child.once('error', reject)
-      child.once('spawn', () => { child.unref(); resolve() })
-    })
   }
 }

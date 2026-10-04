@@ -8,13 +8,11 @@ import { openPiTerminal } from './pi-setup.ts'
 import { loadRuntime } from './runtime/config.ts'
 import { homedir } from 'node:os'
 import { WINDOWS_TITLEBAR_HEIGHT } from './windows-layout.ts'
-import { FileEditor, nativeFileRequest } from './file-actions.ts'
-import { isJsonObject } from './bridge/types.ts'
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)))
 const copy = {
-  en: { name: 'Pi-DSH', quit: 'Quit Pi-DSH', open: 'Open Pi-DSH', browser: 'Open in Browser', about: 'About Pi-DSH', hide: 'Hide Pi-DSH', files: 'File', edit: 'Edit', view: 'View', window: 'Window', project: 'Select project directory', error: 'Pi-DSH could not start', active: 'Tasks or terminals are still running. Quit and stop them?', cancel: 'Keep Working', editor: 'Choose a file editor' },
-  zh: { name: 'Pi-DSH', quit: '退出 Pi-DSH', open: '打开 Pi-DSH', browser: '在浏览器中打开', about: '关于 Pi-DSH', hide: '隐藏 Pi-DSH', files: '文件', edit: '编辑', view: '显示', window: '窗口', project: '选择项目目录', error: 'Pi-DSH 无法启动', active: '任务或终端仍在运行。是否退出并停止它们？', cancel: '继续工作', editor: '选择文件编辑器' },
+  en: { name: 'Pi DSH', quit: 'Quit Pi DSH', open: 'Open Pi DSH', browser: 'Open in Browser', about: 'About Pi DSH', hide: 'Hide Pi DSH', files: 'File', edit: 'Edit', view: 'View', window: 'Window', project: 'Select project directory', error: 'Pi DSH could not start', active: 'Tasks or terminals are still running. Quit and stop them?', cancel: 'Keep Working', editor: 'Choose a file editor' },
+  zh: { name: 'Pi DSH', quit: '退出 Pi DSH', open: '打开 Pi DSH', browser: '在浏览器中打开', about: '关于 Pi DSH', hide: '隐藏 Pi DSH', files: '文件', edit: '编辑', view: '显示', window: '窗口', project: '选择项目目录', error: 'Pi DSH 无法启动', active: '任务或终端仍在运行。是否退出并停止它们？', cancel: '继续工作', editor: '选择文件编辑器' },
 }
 const text = app.getLocale().startsWith('zh') ? copy.zh : copy.en
 let window: BrowserWindow | undefined
@@ -79,7 +77,19 @@ else {
     void environmentReady.catch(error => { console.error(error) })
     if (process.platform === 'darwin') app.dock?.setIcon(join(root, 'assets', 'icon-macos.png'))
     if (!url) {
-      hostStarting = startHost({ port: 0, environmentReady, ...(app.isPackaged ? { officeScript: join(process.resourcesPath, 'office-preview.py'), providerWorker: join(process.resourcesPath, 'provider-worker.mjs') } : {}) })
+      hostStarting = startHost({ port: 0, environmentReady,
+        nativeApplications: {
+          async chooseEditor() {
+            if (!window) return null
+            show()
+            const chosen = await dialog.showOpenDialog(window, { title: text.editor, defaultPath: process.platform === 'darwin' ? '/Applications' : undefined,
+              properties: ['openFile'], ...(process.platform === 'win32' ? { filters: [{ name: text.editor, extensions: ['exe'] }] } : {}) })
+            return chosen.canceled ? null : chosen.filePaths[0] ?? null
+          },
+          async open(path) { const error = await shell.openPath(path); if (error) throw new Error(error) },
+          async reveal(path) { shell.showItemInFolder(path) },
+        },
+        ...(app.isPackaged ? { officeScript: join(process.resourcesPath, 'office-preview.py'), providerWorker: join(process.resourcesPath, 'provider-worker.mjs') } : {}) })
       let acquired: Awaited<ReturnType<typeof startHost>>
       try { acquired = await hostStarting } finally { hostStarting = undefined }
       if (quitting) return
@@ -165,28 +175,6 @@ else {
       if (cwd !== undefined && typeof cwd !== 'string') throw new Error('Pi directory must be a path')
       await environmentReady
       await openPiTerminal(await loadRuntime(root, { installationHome: process.env.PI_DESKTOP_HOME ?? join(homedir(), '.pi-desktop') }), cwd, process.env.PI_DESKTOP_HOME ?? join(homedir(), '.pi-desktop'))
-    })
-    const fileEditor = new FileEditor(join(process.env.PI_DESKTOP_HOME ?? join(homedir(), '.pi-desktop'), 'editor.json'))
-    ipcMain.handle('pi-desktop:open-file', async (event, input: unknown) => {
-      trusted(event)
-      const request = nativeFileRequest(input)
-      const target = await fetch(new URL('/api/file-target', process.env.PI_DESKTOP_HOST_URL ?? applicationUrl), {
-        method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(request),
-      })
-      const result: unknown = await target.json()
-      if (!target.ok || !isJsonObject(result) || typeof result.path !== 'string' || typeof result.directory !== 'boolean') throw new Error('This file is unavailable in the selected project')
-      if (request.action === 'reveal') { shell.showItemInFolder(result.path); return }
-      if (result.directory) throw new Error('Select a file to open in an editor')
-      if (request.action === 'system') { const error = await shell.openPath(result.path); if (error) throw new Error(error); return }
-      let editor = request.action === 'chooseEditor' ? undefined : await fileEditor.selected()
-      if (editor === undefined && window !== undefined) {
-        const chosen = await dialog.showOpenDialog(window, { title: text.editor, defaultPath: process.platform === 'darwin' ? '/Applications' : undefined,
-          properties: ['openFile'], ...(process.platform === 'win32' ? { filters: [{ name: text.editor, extensions: ['exe'] }] } : {}) })
-        if (chosen.canceled || chosen.filePaths[0] === undefined) return
-        editor = chosen.filePaths[0]
-        await fileEditor.choose(editor)
-      }
-      if (editor !== undefined) await fileEditor.open(editor, result.path)
     })
     Menu.setApplicationMenu(Menu.buildFromTemplate([
       ...(process.platform === 'darwin' ? [{ label: text.name, submenu: [{ label: text.about, role: 'about' as const }, { type: 'separator' as const }, { label: text.hide, role: 'hide' as const }, { role: 'hideOthers' as const }, { role: 'unhide' as const }, { type: 'separator' as const }, { label: text.quit, role: 'quit' as const }] }] : []),

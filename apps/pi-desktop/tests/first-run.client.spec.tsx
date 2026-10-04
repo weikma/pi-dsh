@@ -71,6 +71,9 @@ beforeEach(() => {
   vi.spyOn(api, 'savePreferences').mockResolvedValue({})
   vi.spyOn(api, 'projectGit').mockResolvedValue({ kind: 'not-repository' })
   vi.spyOn(api, 'projects').mockResolvedValue({ projects: [] })
+  vi.spyOn(api, 'directories').mockImplementation(async path => ({ path: path ?? '/test/home', parent: '/test', home: '/test/home', entries: [], truncated: false }))
+  vi.spyOn(api, 'localApplications').mockResolvedValue({ available: false, applications: [], canChooseEditor: false })
+  vi.spyOn(api, 'openPath').mockResolvedValue({ status: 'opened' })
   vi.spyOn(api, 'addProject').mockResolvedValue({ projects: [project] })
   vi.spyOn(api, 'sessions').mockResolvedValue({ sessions: [] })
   vi.spyOn(api, 'previewSession').mockResolvedValue(null)
@@ -365,6 +368,7 @@ describe('First-run readiness', () => {
     await user.keyboard('{Enter}')
     const chooser = await screen.findByRole('dialog', { name: 'Add project' })
     expect(input.value).toBe('Ship this change')
+    await user.clear(within(chooser).getByRole('textbox', { name: 'Project directory' }))
     await user.type(within(chooser).getByRole('textbox', { name: 'Project directory' }), project.cwd)
     await user.click(within(chooser).getByRole('button', { name: 'Open project' }))
     await waitFor(() => expect(api.command).toHaveBeenCalledWith('host-1', { type: 'prompt', message: 'Ship this change' }))
@@ -482,6 +486,7 @@ describe('First-run readiness', () => {
     await user.type(input, 'Use my model')
     await user.keyboard('{Enter}')
     const chooser = await screen.findByRole('dialog', { name: 'Add project' })
+    await user.clear(within(chooser).getByRole('textbox', { name: 'Project directory' }))
     await user.type(within(chooser).getByRole('textbox', { name: 'Project directory' }), project.cwd)
     await user.click(within(chooser).getByRole('button', { name: 'Open project' }))
     await waitFor(() => expect(api.command).toHaveBeenCalledWith('host-1', { type: 'prompt', message: 'Use my model' }))
@@ -976,6 +981,7 @@ describe('Desktop navigation and files', () => {
     const panel = screen.getByRole('complementary', { name: 'Workspace panel' })
     await user.click(within(panel).getByRole('button', { name: 'Choose a project' }))
     const chooser = await screen.findByRole('dialog', { name: 'Add project' })
+    await user.clear(within(chooser).getByRole('textbox', { name: 'Project directory' }))
     await user.type(within(chooser).getByRole('textbox', { name: 'Project directory' }), project.cwd)
     await user.click(within(chooser).getByRole('button', { name: 'Open project' }))
     await user.click(await within(panel).findByRole('button', { name: /Project Files/ }))
@@ -1146,20 +1152,21 @@ describe('Desktop navigation and files', () => {
     expect(within(panel).getByTitle('Browser').getAttribute('src')).toBe('https://first.example/path')
   })
 
-  it('opens a project file through the restricted native editor action', async () => {
+  it.each([false, true])('opens a project file through the shared Host action (Desktop: %s)', async native => {
     existingProject()
-    const openFile = vi.fn(async () => {})
-    window.piDesktop = { platform: 'darwin', pickDirectory: async () => project.cwd, openExternal: async () => {}, openFile }
+    if (native) window.piDesktop = { platform: 'darwin', pickDirectory: async () => project.cwd, openExternal: async () => {} }
+    vi.mocked(api.localApplications).mockResolvedValue({ available: true, applications: [{ id: 'textedit', name: 'TextEdit', kind: 'editor' }], editorName: 'TextEdit', canChooseEditor: native })
     vi.spyOn(api, 'file').mockResolvedValueOnce({ kind: 'directory', path: project.cwd, root: project.cwd, entries: [{ name: 'file.ts', path: project.cwd + '/file.ts', kind: 'file' }] }).mockResolvedValueOnce({ kind: 'file', path: project.cwd + '/file.ts', root: project.cwd, content: 'export const value = 1' })
     const { user } = await launch()
     await user.click(screen.getByRole('button', { name: 'Files' }))
     await user.click(await screen.findByRole('button', { name: /Project Files/ }))
     await user.click(await screen.findByRole('button', { name: 'file.ts' }))
     await user.click(await screen.findByRole('button', { name: 'Open in editor' }))
-    expect(openFile).toHaveBeenCalledWith({ cwd: project.cwd, path: project.cwd + '/file.ts', action: 'editor' })
+    expect(api.openPath).toHaveBeenCalledWith({ cwd: project.cwd, path: project.cwd + '/file.ts', action: 'editor' })
     await user.click(screen.getByRole('button', { name: 'File actions' }))
     await user.click(await screen.findByRole('menuitem', { name: 'Choose another editor…' }))
-    expect(openFile).toHaveBeenLastCalledWith({ cwd: project.cwd, path: project.cwd + '/file.ts', action: 'chooseEditor' })
+    await user.click(await screen.findByRole('menuitem', { name: 'TextEdit' }))
+    expect(api.openPath).toHaveBeenLastCalledWith({ cwd: project.cwd, path: project.cwd + '/file.ts', action: 'application', applicationId: 'textedit' })
   })
 
   it('branches from an AI reply through the native-history endpoint', async () => {
