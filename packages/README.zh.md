@@ -2,7 +2,7 @@
 
 [English](README.md) | 中文
 
-六个私有源码库为 Pi-DSH 保留 DeepSeek Harness 视觉体系与浏览器工具，不包含 Cordis 或 Agent 运行时。
+六个私有源码库为 Pi DSH 保留 DeepSeek Harness 视觉体系与浏览器工具，不包含 Cordis 或 Agent 运行时。
 
 | 目录 | 用途 |
 |---|---|
@@ -13,4 +13,4 @@
 | [util/code-language](util/code-language/README.zh.md) | 文件扩展名与高亮语言映射 |
 | [util/workspace-path](util/workspace-path/README.zh.md) | 浏览器安全的文件路径格式化 |
 
-Pi 集成位于 [apps/pi-desktop](../apps/pi-desktop/package.json)。已移除包内的历史会话夹具目录仍然保留，但不是当前工作区。
+Pi 集成位于 [apps/pi-dsh](../apps/pi-dsh/package.json)。旧产品的持久化文档不属于当前工作区。

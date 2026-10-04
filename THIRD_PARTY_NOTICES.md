@@ -1,10 +1,10 @@
 # Third-Party Notices
 
-Pi-DSH retains DeepSeek Harness visual libraries under the [MIT License](LICENSE). The following direct dependencies are installed for the GUI or its development tools; their own licenses apply. Exact transitive versions are recorded in [pnpm-lock.yaml](pnpm-lock.yaml). The independently executable distribution includes official Pi, Node, pnpm, Python, Office libraries, ripgrep and fd outside Electron's ASAR. Exact upstream revisions and integrity records live in [the runtime lock](apps/pi-desktop/runtime/bundle-lock.json), [the official Pi production lock](apps/pi-desktop/runtime/pi-production-lock.json), and [the Python lock](apps/pi-desktop/runtime/auxiliary-lock.json). Their upstream license files and Python distribution metadata accompany the payload; Pi's canonical MIT notice is retained under `runtime/licenses/pi/LICENSE`.
+Pi DSH retains DeepSeek Harness visual libraries under the [MIT License](LICENSE). The following direct dependencies are installed for the GUI or its development tools; their own licenses apply. Exact transitive versions are recorded in [pnpm-lock.yaml](pnpm-lock.yaml). The independently executable distribution includes official Pi, Node, pnpm, Python, Office libraries, ripgrep and fd outside Electron's ASAR. Exact upstream revisions and integrity records live in [the runtime lock](apps/pi-dsh/runtime/bundle-lock.json), [the official Pi production lock](apps/pi-dsh/runtime/pi-production-lock.json), and [the Python lock](apps/pi-dsh/runtime/auxiliary-lock.json). Their upstream license files and Python distribution metadata accompany the payload; Pi's canonical MIT notice is retained under `runtime/licenses/pi/LICENSE`.
 
-The bundled Montserrat fonts retain their [SIL Open Font License](apps/pi-desktop/client/styles/Montserrat-OFL.txt).
+The bundled Montserrat fonts retain their [SIL Open Font License](apps/pi-dsh/client/styles/Montserrat-OFL.txt).
 
-The Pi pixel mark comes from the official [Pi Press Kit](https://pi.dev/press-kit). Its source and transformations are recorded in [the asset README](apps/pi-desktop/assets/README.md), with the upstream [MIT notice](apps/pi-desktop/assets/LICENSE.pi.txt). Native icons are generated from that static SVG independently of the Pi runtime.
+The Pi pixel mark comes from the official [Pi Press Kit](https://pi.dev/press-kit). Its source and transformations are recorded in [the asset README](apps/pi-dsh/assets/README.md), with the upstream [MIT notice](apps/pi-dsh/assets/LICENSE.pi.txt). Native icons are generated from that static SVG independently of the Pi runtime.
 
 | Package | License |
 | --- | --- |

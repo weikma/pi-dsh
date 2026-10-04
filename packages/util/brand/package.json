@@ -1,6 +1,6 @@
 {
   "name": "@deepseek-ai/dsh-brand",
-  "description": "Stateless branded primitive types for Pi-DSH",
+  "description": "Stateless branded primitive types for Pi DSH",
   "version": "0.2.0-rc.2",
   "type": "module",
   "main": "src/index.ts",

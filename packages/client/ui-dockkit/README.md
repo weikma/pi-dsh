@@ -40,7 +40,7 @@ The planner turns settled gestures into layout operations, and the sequencer sup
 <a id="further-exploration"></a>
 ## Further Exploration
 
-[Pi Desktop setup](../../../docs/pi-desktop/README.md) describes the consuming application and runtime ownership.
+[Pi DSH setup](../../../docs/pi-dsh/README.md) describes the consuming application and runtime ownership.
 
 <a id="model-experience"></a>
 ## Model Experience

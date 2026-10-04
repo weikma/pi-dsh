@@ -40,7 +40,7 @@ Updates produce new immutable values; selectors and subscriber notification rema
 <a id="further-exploration"></a>
 ## Further Exploration
 
-[Pi Desktop setup](../../../docs/pi-desktop/README.md) describes the consuming application and runtime ownership.
+[Pi DSH setup](../../../docs/pi-dsh/README.md) describes the consuming application and runtime ownership.
 
 <a id="model-experience"></a>
 ## Model Experience

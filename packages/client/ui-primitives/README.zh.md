@@ -1,5 +1,5 @@
 ---
-description: "供 Pi Desktop 和本地 Web 复用的 React 控件及 transcript 渲染器。"
+description: "供 Pi DSH 和本地 Web 复用的 React 控件及 transcript 渲染器。"
 kind: "package-library"
 ---
 
@@ -25,7 +25,7 @@ kind: "package-library"
 <a id="use-this-package"></a>
 ## 使用此包
 
-从包的[源码入口](src/index.ts)导入具名组件。Pi Desktop 的 Vite 构建直接打包 TypeScript、React 和 CSS 模块；此库没有独立可执行文件、插件安装命令或生成的 `lib/` 入口。标签及无障碍名称由使用方应用的类型化语言字典管理。
+从包的[源码入口](src/index.ts)导入具名组件。Pi DSH 的 Vite 构建直接打包 TypeScript、React 和 CSS 模块；此库没有独立可执行文件、插件安装命令或生成的 `lib/` 入口。标签及无障碍名称由使用方应用的类型化语言字典管理。
 
 `MarkdownText` 在流式输出时渲染已经闭合的行内公式。块级公式和 `math` 围栏中的当前内容只要能被 KaTeX 解析就会渲染；解析错误在消息结束前保持隐藏。普通代码保留原文。既有的 `$…$`、`$$…$$`、`\(…\)` 和 `\[…\]` 写法保留完成状态下的含义。
 
@@ -44,7 +44,7 @@ kind: "package-library"
 <a id="further-exploration"></a>
 ## 进一步探索
 
-[Pi Desktop 配置说明](../../../docs/pi-desktop/README.zh.md)介绍使用此库的应用及运行时归属。
+[Pi DSH 配置说明](../../../docs/pi-dsh/README.zh.md)介绍使用此库的应用及运行时归属。
 
 <a id="model-experience"></a>
 ## 模型体验

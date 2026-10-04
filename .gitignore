@@ -31,7 +31,7 @@ tmp/
 mise.toml
 dist-exe/
 /dist/
-apps/desktop/.desktop-build/
+apps/desktop/.pi-dsh-build/
 python/sdk-runtime/src/deepseek_harness_runtime/runtime/
 python/**/__pycache__/
 python/**/.pytest_cache/
@@ -47,12 +47,12 @@ worktrees/
 .typert-*/
 native/system/test/bin/
 
-apps/pi-desktop/dist/
-apps/pi-desktop/.desktop-build/
-apps/pi-desktop/.pi-runtime/
-apps/pi-desktop/runtime/selected.json
-apps/pi-desktop/runtime/.selected-*.json
-apps/pi-desktop/runtime/*.tmp
+apps/pi-dsh/dist/
+apps/pi-dsh/.pi-dsh-build/
+apps/pi-dsh/.pi-runtime/
+apps/pi-dsh/runtime/selected.json
+apps/pi-dsh/runtime/.selected-*.json
+apps/pi-dsh/runtime/*.tmp
 release/
 playwright-report/
 test-results/

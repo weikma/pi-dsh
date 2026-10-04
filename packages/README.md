@@ -2,7 +2,7 @@
 
 English | [中文](README.zh.md)
 
-These six private source libraries preserve the DeepSeek Harness visual system and browser utilities for Pi-DSH. They have no Cordis or Agent runtime.
+These six private source libraries preserve the DeepSeek Harness visual system and browser utilities for Pi DSH. They have no Cordis or Agent runtime.
 
 | Directory | Purpose |
 |---|---|
@@ -13,4 +13,4 @@ These six private source libraries preserve the DeepSeek Harness visual system a
 | [util/code-language](util/code-language/README.md) | File-extension to highlighting-language mapping |
 | [util/workspace-path](util/workspace-path/README.md) | Browser-safe file path formatting |
 
-Pi integration lives in [apps/pi-desktop](../apps/pi-desktop/package.json). Historical session fixture directories under removed packages are preserved but are not active workspaces.
+Pi integration lives in [apps/pi-dsh](../apps/pi-dsh/package.json). Legacy persistence documentation is outside the active workspace.

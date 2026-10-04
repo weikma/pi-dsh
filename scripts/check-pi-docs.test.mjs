@@ -9,7 +9,7 @@ import { checkDocumentation, pairs, instructions } from './check-pi-docs.mjs'
 
 test('documentation accepts reviewed pairs and rejects stale records, missing links, line mismatch and budgets', async () => {
   const sourceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-  const root = await mkdtemp(join(tmpdir(), 'pi-desktop-docs-'))
+  const root = await mkdtemp(join(tmpdir(), 'pi-dsh-docs-'))
   try {
     const documents = [...instructions, ...pairs.flatMap(path => [path, path.replace(/\.md$/, '.zh.md')])]
     for (const path of [...documents, 'scripts/doc-budgets.manifest.json']) {
@@ -30,7 +30,7 @@ test('documentation accepts reviewed pairs and rejects stale records, missing li
     assert.deepEqual(await checkDocumentation(root), [])
     const path = join(root, 'README.md')
     const original = await readFile(path, 'utf8')
-    await writeFile(path, original.replace('Pi-DSH', 'Pi-DSH edited'))
+    await writeFile(path, original.replace('Pi DSH', 'Pi DSH edited'))
     assert.ok((await checkDocumentation(root)).some(failure => failure.includes('stale pair')))
     await writeFile(path, original + '\n[Missing](missing-document.md)\n')
     const invalid = await checkDocumentation(root)

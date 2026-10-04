@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto'
 
 const libraries = ['client/ui-primitives', 'client/ui-dockkit', 'client/store', 'util/brand', 'util/code-language', 'util/workspace-path']
 /** Bilingual documents describing the active application and source libraries. */
-export const pairs = ['README.md', 'CONTRIBUTING.md', 'BRAND_GUIDELINES.md', 'SAFETY.md', 'docs/architecture.md', 'docs/testing.md', 'docs/pi-desktop/README.md', 'docs/pi-desktop/extensions.md', 'apps/pi-desktop/runtime/AUXILIARY.md', 'apps/pi-desktop/bridge/README.md', 'apps/pi-desktop/assets/README.md', 'docs/upgrade-guide/v0.2.0-rc.2/pi-desktop/guide.md', 'docs/upgrade-guide/v0.2.0-rc.4/runtime-selection/guide.md', 'packages/README.md', 'packages/client/README.md', ...libraries.map(path => 'packages/' + path + '/README.md')]
+export const pairs = ['README.md', 'CONTRIBUTING.md', 'BRAND_GUIDELINES.md', 'SAFETY.md', 'docs/architecture.md', 'docs/testing.md', 'docs/pi-dsh/README.md', 'docs/pi-dsh/extensions.md', 'apps/pi-dsh/runtime/AUXILIARY.md', 'apps/pi-dsh/bridge/README.md', 'apps/pi-dsh/assets/README.md', 'docs/upgrade-guide/v0.2.0-rc.2/pi-dsh/guide.md', 'docs/upgrade-guide/v0.2.0-rc.4/runtime-selection/guide.md', 'docs/upgrade-guide/v0.2.0-rc.58/product-name/guide.md', 'packages/README.md', 'packages/client/README.md', ...libraries.map(path => 'packages/' + path + '/README.md')]
 /** Instruction files whose current links and budgets are checked. */
 export const instructions = ['AGENTS.md', 'docs/AGENTS.md', 'packages/AGENTS.md', 'packages/client/AGENTS.md']
 /** Check an explicit checkout; optionally record reviewed bilingual bytes. */
@@ -19,7 +19,7 @@ for (const englishPath of pairs) {
   const english = await readFile(resolve(root, englishPath), 'utf8')
   const chinese = await readFile(resolve(root, chinesePath), 'utf8')
   if (english.split('\n').length !== chinese.split('\n').length) failures.push(englishPath + ': bilingual line counts differ')
-  const expected = { format: 'pi-desktop-pair-v1', en: digest(english), zh: digest(chinese) }
+  const expected = { format: 'pi-dsh-pair-v1', en: digest(english), zh: digest(chinese) }
   if (write) await writeFile(resolve(root, recordPath), JSON.stringify(expected, null, 2) + '\n')
   else {
     try { const record = JSON.parse(await readFile(resolve(root, recordPath), 'utf8')); if (record.en !== expected.en || record.zh !== expected.zh) failures.push(recordPath + ': stale pair; review both sides and run pnpm docs:record') }
@@ -47,5 +47,5 @@ return failures
 if (resolve(process.argv[1] ?? '') === fileURLToPath(import.meta.url)) {
   const failures = await checkDocumentation(resolve(dirname(fileURLToPath(import.meta.url)), '..'), process.argv.includes('--write'))
   if (failures.length) { console.error(failures.join('\n')); process.exitCode = 1 }
-  else console.log('Active Pi-DSH documentation: ' + pairs.length + ' bilingual pairs, local links and instruction budgets passed.')
+  else console.log('Active Pi DSH documentation: ' + pairs.length + ' bilingual pairs, local links and instruction budgets passed.')
 }

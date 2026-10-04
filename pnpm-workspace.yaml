@@ -1,5 +1,5 @@
 packages:
-  - apps/pi-desktop
+  - apps/pi-dsh
   - packages/client/ui-primitives
   - packages/client/ui-dockkit
   - packages/client/store

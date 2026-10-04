@@ -1,16 +1,16 @@
-# Pi-DSH architecture
+# Pi DSH architecture
 
 Electron and Web share React, Host and bridge. Pi runs independently.
 
 ## Runtime ownership
 
-Public SDK discovery reads preferences/resources without executing extensions. [Package management](pi-desktop/extensions.md) uses separate native jobs. Markdown/MCP edits preserve revisions, symlinks and unrelated fields.
+Public SDK discovery reads preferences/resources without executing extensions. [Package management](pi-dsh/extensions.md) uses separate native jobs. Markdown/MCP edits preserve revisions, symlinks and unrelated fields.
 
-`apps/pi-desktop/main.ts` owns native windows, menus, directory selection and background operation. Its sandboxed preload exposes specific native actions. `server.ts` serves the GUI and HTTP/SSE endpoints; the local Web entry uses this Host directly. `client/` contains the shared presentation and typed locale dictionaries.
+`apps/pi-dsh/main.ts` owns native windows, menus, directory selection and background operation. Its sandboxed preload exposes specific native actions. `server.ts` serves the GUI and HTTP/SSE endpoints; the local Web entry uses this Host directly. `client/` contains the shared presentation and typed locale dictionaries.
 
 `bridge/` starts one official Pi RPC process per open session, correlates responses, projects native messages/tools into GUI snapshots, and joins shutdown. Pi owns execution, model context, resources, compaction and sessions. Provider management uses an independent Node worker that loads only the selected official Pi package’s public ModelRuntime SDK; Pi’s authentication storage owns login/logout writes. The bridge does not implement an Agent loop or synthesize DSH events.
 
-`runtime/` prepares official Node/Pi/pnpm and locked Python/Office/search resources outside ASAR. First use installs the payload offline into immutable `runtimes/pi-<version>-<target>-<manifest-hash>` directories. Desktop opens its GUI while installation and shell environment reading proceed; Pi/Office routes wait for readiness. External selection takes priority, supporting compatible Pi upgrades without rebuilding Electron. Tested versions and checks live in `bridge/version.json` and [the setup guide](pi-desktop/README.md).
+`runtime/` prepares official Node/Pi/pnpm and locked Python/Office/search resources outside ASAR. First use installs the payload offline into immutable `runtimes/pi-<version>-<target>-<manifest-hash>` directories. Desktop opens its GUI while installation and shell environment reading proceed; Pi/Office routes wait for readiness. External selection takes priority, supporting compatible Pi upgrades without rebuilding Electron. Tested versions and checks live in `bridge/version.json` and [the setup guide](pi-dsh/README.md).
 
 The separately loaded `runtime/pi-auxiliary.ts` uses Pi's public extension APIs to register `load_workspace_dependencies` and discover Office skills. It returns executable and library paths as native Pi tool output; it does not inject Host prompts or alter Pi's loop, authentication or sessions. The GUI imports bridge-owned view models and no Pi SDK classes.
 
@@ -30,7 +30,7 @@ The Host validates previews, downloads and application targets against registere
 
 Six source libraries retain React primitives, stores, docking, brands, language mapping and workspace paths. DSH/Cordis runtime packages are removed.
 
-Committed DSH session fixtures and persistence records remain in their original locations as historical evidence, excluded from active programs. Pi resumes only its native session files; it does not migrate DSH sessions. See [the upgrade guide](upgrade-guide/v0.2.0-rc.2/pi-desktop/guide.md).
+Legacy DSH persistence documentation remains historical evidence outside active programs. Pi resumes only its native session files; it does not migrate DSH sessions. See [the upgrade guide](upgrade-guide/v0.2.0-rc.2/pi-dsh/guide.md).
 
 ## Upgrade validation
 

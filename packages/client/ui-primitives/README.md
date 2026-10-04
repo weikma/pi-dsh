@@ -1,5 +1,5 @@
 ---
-description: "Reusable React controls and transcript renderers for Pi Desktop and local Web."
+description: "Reusable React controls and transcript renderers for Pi DSH and local Web."
 kind: "package-library"
 ---
 
@@ -25,7 +25,7 @@ Build controls and render agent output with the retained React primitives: butto
 <a id="use-this-package"></a>
 ## Use this package
 
-Import named components from the package's [source entry](src/index.ts). Pi Desktop's Vite build bundles the TypeScript, React, and CSS modules directly; the library has no separate executable, plugin-install command, or generated `lib/` entry. Keep labels and accessible names in the consuming application's typed locale dictionary.
+Import named components from the package's [source entry](src/index.ts). Pi DSH's Vite build bundles the TypeScript, React, and CSS modules directly; the library has no separate executable, plugin-install command, or generated `lib/` entry. Keep labels and accessible names in the consuming application's typed locale dictionary.
 
 `MarkdownText` renders closed inline formulas during streaming. Display formulas and `math` fences render their current body whenever KaTeX can parse it; parse errors stay hidden until the message finishes. Ordinary code remains literal. Existing `$…$`, `$$…$$`, `\(…\)` and `\[…\]` notation keeps its settled meaning.
 
@@ -44,7 +44,7 @@ The streaming parser keeps open display formulas in its mutable tail, including 
 <a id="further-exploration"></a>
 ## Further Exploration
 
-[Pi Desktop setup](../../../docs/pi-desktop/README.md) describes the consuming application and runtime ownership.
+[Pi DSH setup](../../../docs/pi-dsh/README.md) describes the consuming application and runtime ownership.
 
 <a id="model-experience"></a>
 ## Model Experience

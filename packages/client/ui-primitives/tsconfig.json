@@ -1,5 +1,5 @@
 {
-  "extends": "../../../apps/pi-desktop/tsconfig.base.json",
+  "extends": "../../../apps/pi-dsh/tsconfig.base.json",
   "include": [
     "src/**/*"
   ]

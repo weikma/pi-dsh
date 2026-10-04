@@ -1,16 +1,16 @@
-# Pi-DSH 架构
+# Pi DSH 架构
 
 Electron 和 Web 共享 React、Host 与桥接层，Pi 独立运行。
 
 ## 运行时归属
 
-公开 SDK 发现偏好与资源时不执行扩展。[扩展包管理](pi-desktop/extensions.zh.md)使用独立原生任务。Markdown／MCP 编辑保留版本检查、符号链接和其它字段。
+公开 SDK 发现偏好与资源时不执行扩展。[扩展包管理](pi-dsh/extensions.zh.md)使用独立原生任务。Markdown／MCP 编辑保留版本检查、符号链接和其它字段。
 
-`apps/pi-desktop/main.ts` 管理原生窗口、菜单、目录选择和后台运行，其隔离 preload 仅开放明确的原生操作。`server.ts` 提供 GUI 与 HTTP/SSE 接口，本地 Web 入口直接连接此 Host。`client/` 包含共享界面和类型化语言字典。
+`apps/pi-dsh/main.ts` 管理原生窗口、菜单、目录选择和后台运行，其隔离 preload 仅开放明确的原生操作。`server.ts` 提供 GUI 与 HTTP/SSE 接口，本地 Web 入口直接连接此 Host。`client/` 包含共享界面和类型化语言字典。
 
 `bridge/` 为每个打开的会话启动官方 Pi RPC 进程，关联响应，将原生消息／工具投影为 GUI 状态，并等待进程关闭。Pi 管理执行、模型上下文、资源、压缩和会话。服务商管理由独立 Node worker 加载所选官方 Pi 包的公共 ModelRuntime SDK；登录／退出的写入由 Pi 认证存储管理。桥接层不实现 Agent 循环，也不伪造 DSH 事件。
 
-`runtime/` 在 ASAR 外准备官方 Node／Pi／pnpm 及锁定的 Python／Office／搜索资源。首次使用将资源离线安装到不可变的 `runtimes/pi-<version>-<target>-<manifest-hash>` 目录。Desktop 在安装和 shell 环境读取期间打开 GUI；Pi／Office 请求等待就绪。外部选择优先，兼容 Pi 升级无需重建 Electron。验证过的版本与检查记录在 `bridge/version.json` 和[配置指南](pi-desktop/README.zh.md)。
+`runtime/` 在 ASAR 外准备官方 Node／Pi／pnpm 及锁定的 Python／Office／搜索资源。首次使用将资源离线安装到不可变的 `runtimes/pi-<version>-<target>-<manifest-hash>` 目录。Desktop 在安装和 shell 环境读取期间打开 GUI；Pi／Office 请求等待就绪。外部选择优先，兼容 Pi 升级无需重建 Electron。验证过的版本与检查记录在 `bridge/version.json` 和[配置指南](pi-dsh/README.zh.md)。
 
 独立加载的 `runtime/pi-auxiliary.ts` 使用 Pi 公共扩展 API 注册 `load_workspace_dependencies` 并发现 Office skill。它以 Pi 原生工具输出返回可执行文件和库路径，不注入 Host 提示，也不修改 Pi 的循环、认证或会话。GUI 导入桥接层管理的视图模型，不导入 Pi SDK 类。
 
@@ -30,7 +30,7 @@ Host 根据已登记项目根目录校验预览、下载和应用目标，拒绝
 
 六个源码库保留 React 基础组件、状态存储、停靠、品牌类型、语言映射和工作区路径。DSH／Cordis 运行时包已移除。
 
-已提交的 DSH 会话夹具与持久化记录保留在原位置，作为历史证据，不参与当前程序。Pi 只恢复自己的原生会话文件，不迁移 DSH 会话。参见 [升级指南](upgrade-guide/v0.2.0-rc.2/pi-desktop/guide.zh.md)。
+旧 DSH 持久化文档作为历史证据保留，不参与当前程序。Pi 只恢复自己的原生会话文件，不迁移 DSH 会话。参见 [升级指南](upgrade-guide/v0.2.0-rc.2/pi-dsh/guide.zh.md)。
 
 ## 升级验证
 

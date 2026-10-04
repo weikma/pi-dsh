@@ -40,7 +40,7 @@ kind: "package-library"
 <a id="further-exploration"></a>
 ## 进一步探索
 
-[Pi Desktop 配置说明](../../../docs/pi-desktop/README.zh.md)介绍使用此库的应用及运行时归属。
+[Pi DSH 配置说明](../../../docs/pi-dsh/README.zh.md)介绍使用此库的应用及运行时归属。
 
 <a id="model-experience"></a>
 ## 模型体验

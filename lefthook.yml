@@ -1,4 +1,4 @@
-# Optional Lefthook checks for the Pi-DSH workspace; CI owns the platform matrix.
+# Optional Lefthook checks for the Pi DSH workspace; CI owns the platform matrix.
 pre-commit:
   jobs:
     - name: whitespace
