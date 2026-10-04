@@ -1,9 +1,8 @@
 /**
  * The client's ONE syntax highlighter: a synchronous fine-grained shiki core
  * (JavaScript regex engine — no oniguruma WASM, bundle-friendly) with an
- * explicit grammar allowlist and a CSS-variables theme. Colors live in the
- * theme package's token sheets as `--shiki-*` custom properties (light and
- * dark blocks), never here — the repo's tokens-only styling rule.
+ * explicit grammar allowlist. The default theme uses the owning application's
+ * `--shiki-*` tokens; optional bundled Shiki themes preserve their native colors.
  *
  * Only the three markdown-fence and `run_code` grammars (TypeScript, shell,
  * JSON) load into the singleton at boot — the set every session renders. Every
@@ -18,6 +17,7 @@
  * monospace) — never an error.
  */
 
+import { CODE_THEMES, type CodeTheme } from '../code-themes.ts'
 import { createHighlighterCoreSync, createCssVariablesTheme } from 'shiki/core'
 import { createJavaScriptRegexEngine, defaultJavaScriptRegexConstructor } from 'shiki/engine/javascript'
 import langTs from '@shikijs/langs/typescript'
@@ -287,7 +287,7 @@ const BOOT_GRAMMAR_WARMUPS = [
 /** Construct and pre-tokenize the boot grammars outside the user-content scan budget. */
 function createHighlighter(): HighlighterCore {
   const instance = createHighlighterCoreSync({
-    themes: [cssVariablesTheme],
+    themes: [cssVariablesTheme, ...Object.values(CODE_THEMES)],
     langs: LANGS,
     engine: regexEngine,
   })
@@ -380,20 +380,19 @@ const warmupTimer = setTimeout(() => { highlighter() }, 0)
  * {@link onGrammarLoaded} to re-highlight once it registers.
  * @param code - the source text.
  * @param lang - the language hint (a markdown fence info string or a fixed caller id).
+ * @param theme - Bundled theme; the default resolves colors through application CSS tokens.
  * @returns the highlighted HTML, or `undefined` for unknown or not-yet-loaded languages.
  */
-export function highlightToHtml(code: string, lang: string | undefined): string | undefined {
+export function highlightToHtml(code: string, lang: string | undefined, theme: CodeTheme = 'css-variables'): string | undefined {
   const resolved = grammarForHint(lang)
   if (resolved === undefined) return undefined
   if (!ensureGrammar(resolved)) return undefined
-  return highlighter().codeToHtml(code, { lang: resolved, theme: 'css-variables' })
+  return highlighter().codeToHtml(code, { lang: resolved, theme })
 }
 
 /**
- * One highlighted run of a line: the text and the inline style shiki assigned
- * it. The css-variables theme colors every run through a `--shiki-*` custom
- * property, so `style.color` is always present; it is held as a style object
- * rather than a bare color so a run spreads onto a `<span style>` uniformly.
+ * One highlighted run with Shiki token styles. The default theme uses CSS
+ * variables; named themes supply their own colors and font styles.
  */
 export interface HighlightSpan {
   text: string
@@ -405,12 +404,9 @@ const DECORATION_BITS: readonly (readonly [number, string])[] = [[4, 'underline'
 
 /**
  * The inline style shiki's HTML arm assigns one token (`getTokenStyleObject`
- * mirrored onto React style keys): the css-variables color plus the
- * vscode-textmate font-style bits the theme lets through — italic (1), bold
- * (2), and the {@link DECORATION_BITS} decorations (the theme injects bold,
- * italic, and underline rules for markup scopes, so markdown fences carry
- * them). The theme has no per-scope backgrounds, so `background-color` never
- * occurs; the arm-parity tests fail loud if a shiki upgrade changes that.
+ * mirrored onto React style keys): color plus italic (1), bold (2), and the
+ * underline/strikethrough decorations. Both rendering paths preserve these
+ * styles from the selected theme.
  */
 function spanStyle(token: ThemedToken): CSSProperties {
   const style: CSSProperties = { color: token.color }
@@ -428,19 +424,14 @@ function spanStyle(token: ThemedToken): CSSProperties {
  * whitespace-only run into the token that follows it — shiki's default
  * `mergeWhitespaces` HTML behavior — with each run styled through
  * {@link spanStyle}, so the streaming spans and the settled `codeToHtml`
- * swap render one identical span tree. shiki exempts underlined/struck
- * whitespace from the fold; under the css-variables theme that case cannot
- * occur — its only underline rule styles inline-link scopes, whose spaced
- * text tokenizes as one run, and it injects no strikethrough rule — so the
- * unconditional fold here stays equivalent (the markdown arm-parity test
- * pins it). A line-trailing whitespace-only run has no follower and keeps
- * its own span, as in shiki.
+ * swap render one identical span tree. Underlined or struck-through whitespace
+ * retains its own token so merging cannot lose the selected theme's decoration.
  */
 function lineSpans(line: ThemedToken[]): HighlightSpan[] {
   const spans: HighlightSpan[] = []
   let pendingWhitespace = ''
   for (const [index, token] of line.entries()) {
-    if (/^\s+$/.test(token.content) && index + 1 < line.length) {
+    if (/^\s+$/.test(token.content) && index + 1 < line.length && ((token.fontStyle ?? 0) & 12) === 0) {
       pendingWhitespace += token.content
       continue
     }
@@ -464,6 +455,9 @@ function lineSpans(line: ThemedToken[]): HighlightSpan[] {
  * re-tokenize fully, so any input stays correct.
  */
 export class StreamingHighlightSession {
+  /** One theme per streaming cache; construct a fresh session when the owner changes theme. */
+  constructor(private readonly theme: CodeTheme = 'css-variables') {}
+
   /** Grammar id the cache was built with; a different resolution resets it. */
   private resolved: string | undefined
   /** Newline-terminated source prefix covered by {@link spans}. */
@@ -491,7 +485,7 @@ export class StreamingHighlightSession {
   private tokenize(resolved: string, text: string): ThemedToken[][] {
     return highlighter().codeToTokensBase(text, {
       lang: resolved,
-      theme: 'css-variables',
+      theme: this.theme,
       ...(this.state === undefined ? {} : { grammarState: this.state }),
     })
   }
@@ -572,21 +566,19 @@ export interface StreamingHighlightFrame {
  * A line-numbered view needs the token runs split per line (one gutter number
  * per line), which the single-`<pre>` {@link highlightToHtml} does not expose,
  * so this returns shiki's own 2D line/token structure narrowed to what a run
- * renders. Each run's color is a `--shiki-*` custom property, keeping token
- * colors on the theme package's sheets exactly as the HTML path does; the
- * markup font-style bits the theme lets through (bold/italic/underline in
- * markdown scopes) are dropped — the line-numbered file view renders
- * color-only runs. The trailing newline shiki appends as a final empty line
+ * renders. Runs use the selected theme's colors; the file view intentionally
+ * omits markup font-style bits (bold/italic/underline). The trailing newline shiki appends as a final empty line
  * is dropped so the run count matches the caller's own line array.
  * @param code - the source text.
  * @param lang - the language hint (a file-extension-derived language id).
+ * @param theme - Bundled theme; the default resolves colors through application CSS tokens.
  * @returns one entry per source line (each an array of runs), or `undefined` for unknown or not-yet-loaded languages.
  */
-export function highlightLines(code: string, lang: string | undefined): HighlightSpan[][] | undefined {
+export function highlightLines(code: string, lang: string | undefined, theme: CodeTheme = 'css-variables'): HighlightSpan[][] | undefined {
   const resolved = grammarForHint(lang)
   if (resolved === undefined) return undefined
   if (!ensureGrammar(resolved)) return undefined
-  const { tokens } = highlighter().codeToTokens(code, { lang: resolved, theme: 'css-variables' })
+  const { tokens } = highlighter().codeToTokens(code, { lang: resolved, theme })
   // shiki tokenizes `a\nb` into two lines; a trailing newline (`a\n`) adds a
   // third, empty line the caller's own line array does not carry. Drop that
   // one terminator line so the two structures stay in step. The explicit

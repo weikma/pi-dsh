@@ -1,96 +1,41 @@
-# DeepSeek Harness
+# Pi-DSH
 
 [English](README.md) | 中文
 
-DeepSeek Harness（`dsh`）是由 [DeepSeek AI](https://deepseek.com) 开发的开源 agent harness（智能体框架）。
+基于 DeepSeek Harness 界面组件构建的 [Pi Coding Agent](https://github.com/earendil-works/pi) 桌面工作区。把 Pi 的扩展生态、原生会话和编程工具带到图形界面，也可以在本地浏览器中使用同一套工作区。
 
-它构建于**一切皆插件**的架构之上，由 [Cordis](https://github.com/cordiverse/cordis) 驱动，其设计参见论文 [_A Programming Paradigm for Spatiotemporal Composability_](https://arxiv.org/abs/2608.25512)。
+![使用本地演示模型的 Pi-DSH 工作区](docs/assets/pi-dsh-workspace.png)
 
-文档：[https://deepseek-harness.github.io/deepseek-harness/](https://deepseek-harness.github.io/deepseek-harness/)
+## 功能亮点
 
-## 开发者预览
+- **在桌面使用 Pi 插件生态。** 浏览 [Pi 包目录](https://pi.dev/packages)，从 npm、Git 或本地路径安装包，管理扩展、技能和提示词模板。自定义工具、斜杠命令和标准 Pi 交互弹窗通过原生运行时执行。[兼容性说明](docs/pi-desktop/extensions.zh.md)。
+- **会话分支与恢复。** 浏览 Pi 会话树，从先前的用户或 AI 消息继续执行、分叉新对话，并恢复 Pi 原生历史。
+- **随时调整任务方向。** 使用 Pi 原生机制发送 Steer、排队 Follow up、停止执行或压缩上下文。
+- **选择模型与思考深度。** 配置服务商，使用 Pi 支持的 API 密钥或 OAuth 登录；新对话沿用上次使用的模型和思考深度。
+- **完整的编程工作区。** 按项目组织历史、模型生成对话标题、流式 Markdown 与数学公式、文件和差异预览、Git 操作、终端，以及电子表格和文档预览。
 
-DeepSeek Harness 处于 _开发者预览_ 阶段，正在快速迭代。**未来将出现破坏兼容性的变更。**
+Pi 独立运行，保持上游代码不变。兼容的 Pi 升级不需要重新构建 Pi-DSH。依赖自定义终端界面的包仍需使用 Pi 终端，不会自动转换成桌面组件。
 
-运行本项目前，请阅读[安全说明](SAFETY.zh.md)。
+## 快速开始
 
-<a id="run"></a>
-
-## 运行
-
-### 通过 `npm` 运行
-
-安装 `Node.js`，然后运行：
+需要 **Node 22.x 系列的 22.19 或更高版本，或 Node 24+**，以及 **pnpm 11.7.0**。在 `pi-dsh` 仓库目录中运行：
 
 ```sh
-npx @deepseek-ai/dsh web
-```
-
-该命令默认会在 `http://127.0.0.1:3080` 启动 Web UI，本机启动时还会用默认浏览器打开页面。通过 SSH 启动时只打印宿主机 URL，因为本地转发地址由 SSH 客户端或编辑器持有。传入 `--no-open` 可仅运行服务器而不打开浏览器。详见 [Web UI 指南](docs/user/guide/index.zh.md)。
-
-<a id="run-from-source"></a>
-
-### 从源码运行
-
-如需从仓库源码运行：
-
-```sh
-git clone https://github.com/deepseek-ai/deepseek-harness.git
-cd deepseek-harness
 pnpm install
-pnpm run build
-pnpm dsh web
+pnpm pi:install 0.99.1
+pnpm dev:desktop
 ```
 
-`pnpm run build` 会准备仓库产物。`pnpm dsh web` 会直接使用这些已构建产物，不会重新构建。
+使用 `pnpm dev:web` 启动本地浏览器界面。在**设置 → 模型与服务商**中连接模型，选择项目后即可发送消息。Pi-DSH 使用 Pi 原生配置和会话存储。
 
-## 社区与支持
-
-- 通过 [GitHub Discussions](https://github.com/deepseek-ai/deepseek-harness/discussions) 提交反馈或 bug 报告。
-- 为你的插件仓库添加 [`dsh-plugin`](https://github.com/topics/dsh-plugin) 话题，便于被发现。
-- 欢迎加入 DeepSeek Harness 企微群！扫描下方二维码填写入群问卷，小助手会定期发送入群邀请。
-
-<table>
-  <thead>
-    <tr>
-      <th align="center">入群问卷</th>
-      <th align="center">微信公众号</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td align="center"><a href="https://trtgsjkv6r.feishu.cn/share/base/form/shrcnIt5twSVdLGD52KJBckGCgg"><img src="https://cdn.deepseek.com/harness/readme/community-wecom-survey.png" alt="DeepSeek Harness 入群问卷二维码" width="180" height="180"></a></td>
-      <td align="center"><img src="https://cdn.deepseek.com/harness/readme/community-wechat-official-account.png" alt="DeepSeek Harness 团队微信公众号二维码" width="180" height="180"></td>
-    </tr>
-  </tbody>
-</table>
+仓库包含 macOS、Windows 和 Linux 打包目标；目前实际桌面验证覆盖 macOS arm64。打包、运行时选择与平台限制见[配置与升级](docs/pi-desktop/README.zh.md)。
 
 ## 参与贡献
 
-参见 [CONTRIBUTING.md](CONTRIBUTING.zh.md)。
+请阅读[贡献指南](CONTRIBUTING.zh.md)、[架构](docs/architecture.zh.md)、[测试](docs/testing.zh.md)和[安全说明](SAFETY.zh.md)。Pi 及其扩展以当前用户权限运行。
 
-## 开发
+## 许可证与致谢
 
-请先阅读[开发指南](docs/development.zh.md)与[架构文档](docs/architecture.zh.md)。
+采用 [MIT 许可证](LICENSE)。Pi-DSH 是独立社区项目，基于 [Pi](https://github.com/earendil-works/pi) 和 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 的部分组件构建，保留上游版权及[第三方声明](THIRD_PARTY_NOTICES.md)。
 
-`pnpm run dev:web` 会在一个终端里完成构建、启动，并在源码修改时重建 client bundle；`make help` 列出 Web 与 Desktop 对应的 Make target。完整表格见开发指南的「应用命令」一节。
-
-面向 agent：请遵循 [AGENTS.md](AGENTS.md)。
-
-## 引用
-
-```bibtex
-@misc{deepseek-harness2026,
-  title={DeepSeek Harness: Everything is a Plugin},
-  author={DeepSeek-AI},
-  year={2026},
-  publisher={GitHub},
-  howpublished={\url{https://github.com/deepseek-ai/deepseek-harness}},
-}
-```
-
-## 许可证
-
-[MIT](LICENSE)
-
-第三方依赖及其许可证见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+欢迎大家提 issue，交流想法、反馈问题！

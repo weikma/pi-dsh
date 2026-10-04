@@ -46,3 +46,20 @@ worktrees/
 .agents/worktrees/
 .typert-*/
 native/system/test/bin/
+
+apps/pi-desktop/dist/
+apps/pi-desktop/.desktop-build/
+apps/pi-desktop/.pi-runtime/
+apps/pi-desktop/runtime/selected.json
+apps/pi-desktop/runtime/.selected-*.json
+apps/pi-desktop/runtime/*.tmp
+release/
+playwright-report/
+test-results/
+
+# Local development references; not part of the published project.
+.local-notes/
+.env.*
+!.env.example
+*.p12
+*.pfx

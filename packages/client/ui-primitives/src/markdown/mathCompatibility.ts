@@ -120,7 +120,7 @@ const tokenizeBackslashMathText: Tokenizer = function (effects, ok, nok) {
   }
 }
 
-function createMathFlow(marker: number, openMarker: number, closeMarker: number, multiline: boolean): Construct {
+function createMathFlow(marker: number, openMarker: number, closeMarker: number, multiline: boolean, allowUnclosed = false): Construct {
   const tokenize: Tokenizer = function (effects, ok, nok) {
     const self = this
     let oddBackslashRun = false
@@ -154,7 +154,7 @@ function createMathFlow(marker: number, openMarker: number, closeMarker: number,
     }
 
     function content(code: number | null): State | undefined {
-      if (code === codes.eof) return nok(code)
+      if (code === codes.eof) return allowUnclosed ? closed(code) : nok(code)
       if (code === marker && (marker !== codes.dollarSign || !oddBackslashRun)) {
         return effects.attempt(
           { partial: true, tokenize: tokenizeClosingFence },
@@ -337,13 +337,22 @@ const backslashMath: Extension = {
   text: { [codes.backslash]: backslashMathText },
 }
 
+const streamingBackslashMath: Extension = {
+  ...backslashMath,
+  flow: {
+    ...backslashMath.flow,
+    [codes.backslash]: createMathFlow(codes.backslash, codes.leftSquareBracket, codes.rightSquareBracket, true, true),
+  },
+}
+
 /**
  * TeX backslash delimiters and same-line display-dollar blocks as a micromark
  * syntax extension reusing `micromark-extension-math`'s token vocabulary; the
  * caller must also register `math()` on the same parse so the emitted tokens
  * compile to standard math nodes.
+ * @param streaming - Unclosed backslash display blocks consume through EOF.
  * @returns The micromark syntax extension.
  */
-export function mathCompatibility(): Extension {
-  return backslashMath
+export function mathCompatibility(streaming = false): Extension {
+  return streaming ? streamingBackslashMath : backslashMath
 }

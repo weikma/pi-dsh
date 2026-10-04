@@ -112,3 +112,7 @@ export {
 export { GuideArtworkBrowser, GuideArtworkFiles } from './guide-artwork.tsx'
 export { ImageLightbox } from './ImageLightbox.tsx'
 export type { ImageLightboxLabels } from './ImageLightbox.tsx'
+
+export { plainAnsiText } from './ansi.ts'
+
+export { CodeAppearanceProvider, type CodeAppearance } from './CodeAppearance.tsx'

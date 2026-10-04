@@ -1,77 +1,41 @@
-# DeepSeek Harness
+# Pi-DSH
 
 English | [中文](README.zh.md)
 
-DeepSeek Harness (`dsh`) is an open-source agent harness developed by [DeepSeek AI](https://deepseek.com).
+A desktop workspace for the [Pi Coding Agent](https://github.com/earendil-works/pi), built with the UI components of DeepSeek Harness. Bring Pi's extensibility, native sessions and coding tools to a graphical interface—or use the same workspace in your local browser.
 
-It is built on an **everything-is-a-plugin** architecture and powered by [Cordis](https://github.com/cordiverse/cordis), whose design is described in [_A Programming Paradigm for Spatiotemporal Composability_](https://arxiv.org/abs/2608.25512).
+![Pi-DSH workspace with a local demo provider](docs/assets/pi-dsh-workspace.png)
 
-Documentation: [https://deepseek-harness.github.io/deepseek-harness/](https://deepseek-harness.github.io/deepseek-harness/)
+## Highlights
 
-## Developer preview
+- **Pi's plugin ecosystem, on desktop.** Browse the [Pi package gallery](https://pi.dev/packages), install packages from npm, Git or local paths, and manage extensions, skills and prompt templates. Custom tools, slash commands and standard Pi dialogs work through the native runtime. [Compatibility details](docs/pi-desktop/extensions.md).
+- **Branch and resume conversations.** Explore Pi's session tree, continue from an earlier user or assistant message, fork a new chat, and reopen native Pi history.
+- **Stay in control during a task.** Steer the current run, queue follow-up messages, stop execution, and compact context through Pi's own controls.
+- **Choose your model and thinking level.** Configure providers, use Pi-supported API-key or OAuth login, and carry your last model and thinking level into new chats.
+- **A practical coding workspace.** Project-grouped history, model-generated chat titles, streaming Markdown and math, file and diff previews, Git controls, terminals, and spreadsheet/document previews.
 
-DeepSeek Harness is in _developer preview_ and iterating rapidly. **THERE WILL BE COMPATIBILITY-BREAKING CHANGES.**
+Pi runs independently and stays unmodified. Compatible Pi upgrades do not require rebuilding Pi-DSH. Packages that depend on custom terminal interfaces still need the Pi terminal; they do not automatically become desktop widgets.
 
-Review the [safety notice](SAFETY.md) before running the project.
+## Get started
 
-## Run
-
-### Run from `npm`
-
-Install `Node.js`, then run:
-
-```sh
-npx @deepseek-ai/dsh web
-```
-
-The command starts the Web UI at `http://127.0.0.1:3080` by default and opens it in the default browser for a local launch. An SSH launch only prints the host URL because the SSH client or editor owns the local forwarded address. Pass `--no-open` to run the server without opening a browser. See [Web UI guide](docs/user/guide/index.md).
-
-### Run from source
-
-To run from a repository checkout:
+Requires Node **22.19+ in the 22.x series, or 24+**, and **pnpm 11.7.0**. From a checkout of `pi-dsh`:
 
 ```sh
-git clone https://github.com/deepseek-ai/deepseek-harness.git
-cd deepseek-harness
 pnpm install
-pnpm run build
-pnpm dsh web
+pnpm pi:install 0.99.1
+pnpm dev:desktop
 ```
 
-`pnpm run build` prepares the repository artifacts. `pnpm dsh web` uses those built artifacts without rebuilding.
+Use `pnpm dev:web` for the local browser interface. Open **Settings → Models and providers** to connect a model, choose a project, and send a message. Pi-DSH uses Pi's native configuration and session storage.
 
-## Community and support
+macOS, Windows and Linux packaging targets are included; current hands-on desktop validation is on macOS arm64. See [setup and upgrades](docs/pi-desktop/README.md) for packaging, runtime selection and platform limits.
 
-- Submit feedback or bug reports through [GitHub Discussions](https://github.com/deepseek-ai/deepseek-harness/discussions).
-- Add the [`dsh-plugin`](https://github.com/topics/dsh-plugin) topic to your plugin repository for discoverability.
-- Join <a href="https://discord.gg/4MrtZUhpxg">DeepSeek Harness Discord community</a>.
+## Contribute
 
-## Contributing
+See [contributing](CONTRIBUTING.md), [architecture](docs/architecture.md), [testing](docs/testing.md) and [safety](SAFETY.md). Pi and its extensions run with your user permissions.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+## License and credits
 
-## Development
+[MIT](LICENSE). Pi-DSH is an independent community project built on [Pi](https://github.com/earendil-works/pi) and components from [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). Upstream copyrights and [third-party notices](THIRD_PARTY_NOTICES.md) are preserved.
 
-Start with the [development guide](docs/development.md) and [architecture documentation](docs/architecture.md).
-
-`pnpm run dev:web` builds, serves, and rebuilds client bundles on source edits in one terminal, and `make help` lists the matching Make targets for Web and Desktop; the guide's application commands section owns the full table.
-
-For agents, follow [AGENTS.md](AGENTS.md).
-
-## Citation
-
-```bibtex
-@misc{deepseek-harness2026,
-  title={DeepSeek Harness: Everything is a Plugin},
-  author={DeepSeek-AI},
-  year={2026},
-  publisher={GitHub},
-  howpublished={\url{https://github.com/deepseek-ai/deepseek-harness}},
-}
-```
-
-## License
-
-[MIT](LICENSE)
-
-Third-party dependencies and their licenses are disclosed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Questions, ideas and bug reports are welcome—please open an issue!

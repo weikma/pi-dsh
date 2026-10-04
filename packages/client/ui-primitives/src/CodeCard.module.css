@@ -1,8 +1,8 @@
 .card {
   position: relative;
   margin: 16px 0;
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-markdown-code-block);
+  color: var(--dsw-code-foreground, var(--dsw-alias-label-primary));
+  background: var(--dsw-code-background, var(--dsw-alias-markdown-code-block));
   border-radius: var(--dsw-radius-lg);
   font: var(--dsw-font-markdown-code-block);
 }
@@ -13,11 +13,11 @@
   justify-content: space-between;
   gap: 12px;
   padding: 10px 18px 8px 22px;
-  background: var(--dsl-code-block-background, var(--dsw-alias-markdown-code-block));
+  background: var(--dsw-code-background, var(--dsl-code-block-background, var(--dsw-alias-markdown-code-block)));
   border-top-left-radius: inherit;
   border-top-right-radius: inherit;
   color: var(--dsw-alias-label-secondary);
-  font: 11px/18px var(--dsw-font-family);
+  font: calc(11px + var(--dsw-ui-font-delta, 0px))/calc(18px + var(--dsw-ui-font-delta, 0px)) var(--dsw-font-family);
 }
 
 .heading {

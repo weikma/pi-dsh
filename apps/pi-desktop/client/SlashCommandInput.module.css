@@ -1,0 +1,18 @@
+/* Adapt Harness's input-trigger rows to Pi's public command catalog. */
+.menu { position: absolute; bottom: calc(100% + 4px); left: 0; right: 0; z-index: 100; box-sizing: border-box; max-height: 400px; overflow: hidden; padding: 4px; display: flex; flex-direction: column; border: 0; --dsw-elevation-stroke-color: var(--dsw-alias-border-l1); box-shadow: var(--dsw-elevation-prominent); --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2); --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2); --dsh-scrollbar-width: 6px; --dsh-scrollbar-thumb-border: 2px; --dsh-scrollbar-track-margin: 12px; }
+.viewport { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; }
+.item { display: flex; align-items: center; gap: 6px; width: 100%; flex: none; min-height: 34px; padding: 6px 8px; border: 0; border-radius: var(--dsw-radius-md); background: transparent; color: var(--dsw-alias-label-primary); text-align: left; cursor: pointer; font-size: calc(13px + var(--dsw-ui-font-delta, 0px)); line-height: calc(20px + var(--dsw-ui-font-delta, 0px)); }
+.active { background: var(--dsw-alias-interactive-bg-hover); }
+.group { flex: none; padding: 6px 8px; font-size: calc(11px + var(--dsw-ui-font-delta, 0px)); line-height: calc(15px + var(--dsw-ui-font-delta, 0px)); color: var(--dsw-alias-label-secondary); }
+.icon { display: flex; flex: none; align-items: center; justify-content: center; width: 14px; height: 14px; color: var(--dsw-alias-menu-icon); }
+.name { flex: none; max-width: 36%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.alias { flex: none; max-width: 24%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--dsw-alias-label-secondary); font-size: calc(12px + var(--dsw-ui-font-delta, 0px)); line-height: calc(18px + var(--dsw-ui-font-delta, 0px)); }
+.description { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: right; color: var(--dsw-alias-label-secondary); font-size: calc(12px + var(--dsw-ui-font-delta, 0px)); line-height: calc(18px + var(--dsw-ui-font-delta, 0px)); }
+.hint { flex: none; padding: 6px 8px 3px; color: var(--dsw-alias-label-secondary); font-size: calc(11px + var(--dsw-ui-font-delta, 0px)); line-height: calc(16px + var(--dsw-ui-font-delta, 0px)); }
+.menu[data-overflow-below] .hint { box-shadow: 0 -8px 12px var(--dsw-specific-menu); z-index: 1; }
+@media (max-width: 800px) {
+  .item { flex-wrap: wrap; gap: 2px 6px; }
+  .name { max-width: 58%; }
+  .alias { max-width: 30%; margin-left: auto; }
+  .description { flex-basis: 100%; text-align: left; padding-left: 20px; }
+}

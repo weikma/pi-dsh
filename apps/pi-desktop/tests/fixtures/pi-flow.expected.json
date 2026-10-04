@@ -1,0 +1,6 @@
+{
+  "assistant": ["Pi fixture completed."],
+  "read": ["Pi owns this file.\n"],
+  "shell": ["fixture-shell-output"],
+  "file": "Pi owns this file.\n"
+}

@@ -1,0 +1,7 @@
+.wrapper { position: relative; display: inline-flex; min-width: 0; max-width: 100%; vertical-align: middle; }
+.select { appearance: none; width: 100%; min-width: 120px; max-width: 100%; min-height: 36px; box-sizing: border-box; color: var(--dsw-alias-label-primary); background: var(--dsw-alias-bg-layer-2); border: 1px solid var(--dsw-alias-border-l2); border-radius: 8px; padding: 8px 36px 8px 10px; font: inherit; font-size: calc(13px + var(--dsw-ui-font-delta, 0px)); cursor: pointer; text-overflow: ellipsis; }
+.select:focus-visible { outline: 2px solid var(--dsw-alias-button-info-fill); outline-offset: 2px; }
+.select:disabled { opacity: .5; cursor: default; }
+.chevron { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--dsw-alias-label-secondary); pointer-events: none; }
+.select:disabled + .chevron { opacity: .5; }
+@media (forced-colors: active) { .chevron { color: ButtonText; } }

@@ -1,0 +1,6 @@
+{
+  "assistant": "Bundled resource flow verified.",
+  "toolNames": ["load_workspace_dependencies", "read"],
+  "shell": { "posix": "bash", "win32": "powershell" },
+  "file": { "cell": 42, "tool": "load_workspace_dependencies" }
+}

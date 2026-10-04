@@ -1,51 +1,59 @@
 ---
-description: "浏览器安全的 Workspace 路径辅助函数：拼接相对路径、缩写 POSIX 主目录并生成显示标题。"
+description: "供项目文件使用的浏览器安全词法路径及展示标签。"
 kind: "package-library"
 ---
 
-# dsh-util-workspace-path
+# @deepseek-ai/dsh-util-workspace-path
 
 [English](README.md) | 中文
 
-## 概述
+## 摘要
 
-供 Workspace 相关客户端和控制器包共享、可在浏览器使用的路径辅助函数。该包负责拼接 Workspace 相对路径、缩写用于展示的 POSIX 主目录、从 POSIX 或 Windows 路径提取 Workspace 标题、把路径拆成目录部分与末段供展示，并拥有在 Sidebar 与资源模型之间命名工作区文件的 `dsh-resource://file/…` 地址语法。`relativizeToCwd` 在显示时省略工作区前缀，并保留该目录以外的路径。它不提供 Cordis service，也不持有运行时状态。
+使用[路径辅助函数](src/index.ts)拼接相对路径、拆分目录及文件名标签、缩写 POSIX 主目录并生成项目标题。此私有源码库接受 POSIX 和 Windows 路径写法，不访问文件系统。其字符串地址辅助函数不授予文件访问权限。
 
 ## 目录
 
-- [文件地址](#file-addresses)
-- [已知限制与暂缓事项](#known-limitations-and-deferred-work)
+- [使用此包](#use-this-package)
+- [了解实现](#understand-the-implementation)
+- [进一步探索](#further-exploration)
+- [模型体验](#model-experience)
+- [已知限制和延期工作](#known-limitations-and-deferred-work)
 - [开发备注](#dev-note)
 
 -----
 
-<a id="file-addresses"></a>
-## 文件地址
+<a id="use-this-package"></a>
+## 使用此包
 
-资源地址 = `dsh-resource://<type>/…`，type（URI 的 host）即资源协议键（`file`，或插件在 `ResourceProtocolMap` 中声明的键）；其他 scheme 属导航协议，另行定义。`dsh-resource://file/session/<sessionId>/<path>` 指定授权 Host 读取的 Session，以及工作区相对或绝对路径。前导斜杠保留在路径中：`/etc/hosts` 对应 `dsh-resource://file/session/s//etc/hosts`，Windows 盘符对应 `dsh-resource://file/session/s/C:/x/y.txt`，UNC 对应 `dsh-resource://file/session/s///server/share/y.txt`。Host 解析路径并执行访问检查。`absolute/<path>` 形式仍可解析，但不携带授权 Session，因此 file 提供方不能读取，Preview 也不认领；两者均不借用当前或 Tab Session。语法住在 [`src/file-address.ts`](src/file-address.ts)；路径辅助函数留在 [`src/index.ts`](src/index.ts) 并再导出它。
+从[源码入口](src/index.ts)导入辅助函数；GUI 直接打包 TypeScript 源码。使用 `pathPartsOf` 生成紧凑路径标签，使用 `relativizeToCwd` 处理展示路径。文件系统解析和访问检查由宿主负责。此库没有服务注册或可执行文件。
 
-`sessionFileAddress(sessionId, path)` 将 `\` 归一为 `/`，去掉前导 `./`，但保留前导 `/` 字符。id 和每个路径段都做组件编码，`:` 保持字面。`fileAddressFor(sessionId, cwd, path)` 始终构造 Session 地址：`cwd` 内的路径转为相对路径；其他绝对路径（包括 `cwd` 未知时）仍作为该 Session 地址内的绝对路径。`absoluteFileAddress(absolutePath)` 只构造不带 Session 的形式。`parseFileAddress(address)` 检查精确的文件地址前缀、忽略查询与片段后缀、逐段解码，并为 Session 地址返回 `{ scope, sessionId, path }`，为不带 Session 的形式返回 `{ scope, path }`。其他 type 或 scheme、未知作用域、缺 id 或路径，或错误转义都返回 `undefined`。
+<a id="understand-the-implementation"></a>
+## 了解实现
 
-`fileMediaUrl(base, path)` 从已解码的绝对路径生成带认证文件路由的 URL，支持 HTTP(S) 应用基址与桌面端 `dsh-app://app/` 来源，保留字面量百分号与部署前缀，并拒绝其他应用基址、相对路径、网络路径前缀和控制字符。Markdown 调用方先解码所写 URL；原生文件卡片路径原样传入。
+<details>
+<summary>实现细节 — 点击展开</summary>
 
------
+辅助函数处理字符串，并保留调用方的分隔符约定。[文件地址工具](src/file-address.ts)保留其字面地址语法，但不安装 URI 处理器，也不授权会话。Pi GUI 的宿主仍负责打开文件。
 
-## 已知限制与暂缓事项
+</details>
+
+<a id="further-exploration"></a>
+## 进一步探索
+
+[Pi Desktop 配置说明](../../../docs/pi-desktop/README.zh.md)介绍使用此库的应用及运行时归属。
+
+<a id="model-experience"></a>
+## 模型体验
+
+此库不向模型提供工具、提示或会话事件。
 
 <a id="known-limitations-and-deferred-work"></a>
+## 已知限制和延期工作
 
-- **路径解析仅处理字面值**——它识别 POSIX 绝对路径、Windows 盘符路径和 UNC 路径，拼接相对路径时保留 Workspace 路径的分隔符，但不访问文件系统，也不规范化 `.` 与 `..` 路径段。
-- **主目录缩写仅支持 POSIX**——Windows 路径保持不变，因为可移植浏览器无法安全推断 Windows 主目录路径等价关系。
-
+- 路径拼接只处理词法，不解析符号链接或规范化文件系统位置。
+- 主目录缩写只适用于 POSIX 写法。
 
 <a id="dev-note"></a>
 ### 开发备注
 
-<details>
-<summary>维护者工作上下文——点击展开</summary>
-
 无。
-
-</details>
-
-**运行时不变式：** 不发布伴生入口。这个工具不持有可变运行时关系。

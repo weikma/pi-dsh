@@ -1,13 +1,16 @@
 // @vitest-environment jsdom
 // The fixture corpus is a DOM compatibility baseline; review diffs as
 // user-visible Markdown changes rather than regenerating them for refactors.
-// One intentional divergence from the original react-markdown recording:
-// streaming fences highlight (with their banner language visible) since the
-// incremental fence-highlight decision, so `*.streaming.txt` fixtures with
-// fenced code pin shiki span trees where react-markdown had the plain arm.
+// Streaming fixtures include highlighted fences and rendered mathematics;
+// malformed TeX remains hidden until the settled pass.
 import { cleanup, render } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import { MarkdownText } from './markdown-test-components.tsx'
+import markdownCss from '../src/markdown/MarkdownText.module.css'
+import codeCss from '../src/markdown/CodeBlock.module.css'
+
+// CSS hashes depend on the test root; retain their source names in DOM fixtures.
+const classNames = new Map(Object.entries({ ...markdownCss, ...codeCss }).map(([name, hashed]) => [hashed, name]))
 
 afterEach(cleanup)
 
@@ -23,7 +26,9 @@ function serialize(node: Node, indent: string, inPre: boolean): string {
   if (node.nodeType !== Node.ELEMENT_NODE) return ''
   const element = node as Element
   const attrs = [...element.attributes]
-    .map(attr => `${attr.name}=${JSON.stringify(attr.value)}`)
+    .map(attr => `${attr.name}=${JSON.stringify(attr.name === 'class'
+      ? attr.value.split(' ').map(name => classNames.get(name) ?? name).join(' ')
+      : attr.value)}`)
     .sort()
     .join(' ')
   const open = attrs === '' ? element.tagName.toLowerCase() : `${element.tagName.toLowerCase()} ${attrs}`

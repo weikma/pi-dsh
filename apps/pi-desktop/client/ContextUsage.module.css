@@ -1,0 +1,23 @@
+/* The three base colors come from the official pi-mark.svg; blends extend its palette. */
+.content { --dsw-context-coral: #F09082; --dsw-context-blue: #4D9ABF; --dsw-context-gold: #F1BE58; padding: 8px; font-size: calc(13px + var(--dsw-ui-font-delta, 0px)); line-height: calc(20px + var(--dsw-ui-font-delta, 0px)); color: var(--dsw-alias-label-primary); }
+.header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 12px; font-weight: 500; }
+.amount { color: var(--dsw-alias-label-secondary); font-size: calc(12px + var(--dsw-ui-font-delta, 0px)); font-weight: 400; font-variant-numeric: tabular-nums; }
+.bar { display: flex; height: 8px; overflow: hidden; border-radius: var(--dsw-radius-sm); background: var(--dsw-alias-interactive-bg-hover); margin-top: 14px; }
+.bar > span { height: 100%; flex: none; }
+.caption { margin: 14px 0 8px; font-size: calc(12px + var(--dsw-ui-font-delta, 0px)); color: var(--dsw-alias-label-secondary); }
+.rows { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.rows > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.rows dt { display: flex; align-items: center; gap: 8px; color: var(--dsw-alias-label-secondary); }
+.rows dd { margin: 0; font-variant-numeric: tabular-nums; }
+.dot { width: 8px; height: 8px; border-radius: 50%; corner-shape: round; flex: none; }
+.system { background: var(--dsw-context-coral); }
+.tools { background: var(--dsw-context-blue); }
+.mcp { background: color-mix(in srgb, var(--dsw-context-blue) 65%, var(--dsw-context-gold)); }
+.extensions { background: color-mix(in srgb, var(--dsw-context-coral) 60%, var(--dsw-context-blue)); }
+.skills { background: var(--dsw-context-gold); }
+.messages { background: color-mix(in srgb, var(--dsw-context-blue) 70%, var(--dsw-alias-label-primary)); }
+.results { background: color-mix(in srgb, var(--dsw-context-gold) 60%, var(--dsw-context-coral)); }
+.note { margin: 14px 0 0; color: var(--dsw-alias-label-secondary); font-size: calc(11px + var(--dsw-ui-font-delta, 0px)); line-height: calc(16px + var(--dsw-ui-font-delta, 0px)); }
+.cache { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 0 0; padding-top: 12px; border-top: 1px solid var(--dsw-alias-border-l3); }
+.cache dt { color: var(--dsw-alias-label-secondary); }
+.cache dd { margin: 0; font-variant-numeric: tabular-nums; }

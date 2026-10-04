@@ -1,8 +1,8 @@
 /**
  * TeX-to-React via KaTeX, replicating the rehype-katex pipeline this renderer
- * replaced: the same three-arm error chain (strict render, `strict: 'ignore'`
- * retry, error span) and a DOM-identical element tree, so settled math keeps
- * its exact markup. KaTeX emits an HTML string; the browser's own HTML parser
+ * replaced. Settled math keeps its three-arm error chain (strict render,
+ * `strict: 'ignore'` retry, error span) and element tree. Streaming hides
+ * parse errors while more source may arrive. KaTeX emits an HTML string; the browser's own HTML parser
  * (`DOMParser`, applying the spec's SVG/MathML foreign-content attribute
  * adjustments KaTeX output relies on) turns it into a tree this module maps
  * onto React elements — KaTeX output is a static span/MathML/SVG vocabulary
@@ -15,7 +15,7 @@
  * tag name regardless of namespace.
  */
 
-import { createElement } from 'react'
+import { createElement, memo } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import katex from 'katex'
 
@@ -60,14 +60,16 @@ function domToReact(node: ChildNode, key: number): ReactNode {
  * @param value - The TeX source (math node value; fenced `math` blocks append
  * their trailing newline to match the replaced pipeline's text extraction).
  * @param displayMode - Display (block) versus inline rendering.
- * @returns KaTeX's element tree, or the error span when the source does not
- * parse (colored with KaTeX's stock `errorColor`, matching rehype-katex).
+ * @param streaming - Hide parse errors while more TeX may still arrive.
+ * @returns KaTeX's element tree, null for a streaming parse error, or a
+ * settled error span colored with KaTeX's stock `errorColor`.
  */
-export function renderTexToReact(value: string, displayMode: boolean): ReactNode {
+export function renderTexToReact(value: string, displayMode: boolean, streaming = false): ReactNode {
   let html: string
   try {
-    html = katex.renderToString(value, { displayMode, throwOnError: true })
+    html = katex.renderToString(value, { displayMode, throwOnError: true, ...(streaming ? { strict: 'ignore' } : {}) })
   } catch (error) {
+    if (streaming && error instanceof katex.ParseError) return null
     try {
       html = katex.renderToString(value, { displayMode, strict: 'ignore', throwOnError: false })
     } catch {
@@ -88,3 +90,12 @@ export function renderTexToReact(value: string, displayMode: boolean): ReactNode
   const parsed = new DOMParser().parseFromString(html, 'text/html')
   return [...parsed.body.childNodes].map(domToReact)
 }
+
+/** Cache each formula's render across unrelated text updates, including the unstable Markdown tail. */
+export const TexMath = memo(function TexMath({ value, displayMode, streaming }: {
+  value: string
+  displayMode: boolean
+  streaming: boolean
+}) {
+  return renderTexToReact(value, displayMode, streaming)
+})

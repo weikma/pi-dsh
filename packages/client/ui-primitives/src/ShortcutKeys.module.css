@@ -4,8 +4,8 @@
   align-items: center;
   gap: 3px;
   color: var(--dsw-alias-label-tertiary);
-  font-size: 12px;
-  line-height: 16px;
+  font-size: calc(12px + var(--dsw-ui-font-delta, 0px));
+  line-height: calc(16px + var(--dsw-ui-font-delta, 0px));
   white-space: nowrap;
 }
 
@@ -17,7 +17,7 @@
   font: inherit;
 }
 
-.tooltip { color: inherit; font-size: 11px; line-height: 14px; gap: 2px; }
+.tooltip { color: inherit; font-size: calc(11px + var(--dsw-ui-font-delta, 0px)); line-height: calc(14px + var(--dsw-ui-font-delta, 0px)); gap: 2px; }
 .tooltip .key {
   min-width: 16px;
   height: 16px;

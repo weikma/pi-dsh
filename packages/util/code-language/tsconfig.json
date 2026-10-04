@@ -1,10 +1,6 @@
 {
-  "extends": "../../../tsconfig.base.json",
-  "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "lib/types"
-  },
+  "extends": "../../../apps/pi-desktop/tsconfig.base.json",
   "include": [
-    "src"
+    "src/**/*"
   ]
 }

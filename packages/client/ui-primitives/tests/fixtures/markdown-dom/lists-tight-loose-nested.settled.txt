@@ -1,4 +1,4 @@
-<div class="_markdown_404681">
+<div class="_markdown_c8d68c">
   <ul>
     <li>
       #text "tight one"
@@ -32,14 +32,14 @@
     <li>
       <p>
         #text "item with nested blocks"
-      <div class="_block_9aea57 md-code-block">
-        <div class="_bannerWrap_9aea57">
-          <div class="_banner_9aea57" data-code-block-banner="true">
-            <div class="_infostring_9aea57">
-            <div class="_action_9aea57">
-              <button class="_copyButton_9aea57" type="button">
+      <div class="_block_b3cd6b md-code-block" data-code-theme="css-variables" data-code-wrap="true">
+        <div class="_bannerWrap_b3cd6b">
+          <div class="_banner_b3cd6b" data-code-block-banner="true">
+            <div class="_infostring_b3cd6b">
+            <div class="_action_b3cd6b">
+              <button class="_copyButton_b3cd6b" type="button">
                 #text "复制"
-        <div class="_content_9aea57" data-code-block-content="true">
-          <pre class="_plain_9aea57">
+        <div class="_content_b3cd6b" data-code-block-content="true">
+          <pre class="_plain_b3cd6b">
             <code>
               #text "fenced inside list"

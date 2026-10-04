@@ -9,13 +9,13 @@
   width: var(--dsl-read-gutter);
   margin-right: 12px;
   text-align: right;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--dsw-code-gutter, var(--dsw-alias-label-tertiary));
   user-select: none;
 }
 
 .content {
   min-width: 0;
-  color: var(--dsw-alias-label-primary);
+  color: var(--dsw-code-foreground, var(--dsw-alias-label-primary));
 }
 
 .block[data-code-wrap='true'] .line {
@@ -32,7 +32,7 @@
   padding: 0 0 0 calc(var(--dsl-read-gutter) + 12px);
   border: none;
   background: transparent;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--dsw-code-gutter, var(--dsw-alias-label-tertiary));
   cursor: pointer;
   font: inherit;
   text-align: left;
@@ -41,3 +41,5 @@
 .expand:hover {
   color: var(--dsw-alias-label-secondary);
 }
+
+.block[data-line-numbers='false'] .expand { padding-left: 0; }

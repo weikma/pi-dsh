@@ -1,7 +1,5 @@
-# Bilingual-pair consistency record for BRAND_GUIDELINES.md (docs/i18n/README.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
-# After editing either side, bring the other along and re-record with:
-#   pnpm run verify-translation-pairing --write BRAND_GUIDELINES.md
-/deepseek-harness-brand-asset-usage-guidelines:
-  en: 23933888033edf18
-  zh: eaa5afb9e2cb4d25
+{
+  "format": "pi-desktop-pair-v1",
+  "en": "b78442b497597230b5ad96c97c3e6a344b75db56649fadf9d9dc20c2da40b916",
+  "zh": "1d4cad4c452d50fa1de1623dc2241f301aaf6118f43887623c563be3c1cfef4c"
+}

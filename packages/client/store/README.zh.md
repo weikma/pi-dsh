@@ -1,48 +1,59 @@
 ---
-description: "具有显式快照、订阅与生命周期所有权的浏览器可观察状态存储。"
+description: "不依赖 React 的 GUI 状态可观察快照及不可变更新。"
 kind: "package-library"
 ---
+
 # @deepseek-ai/dsh-client-store
 
 [English](README.md) | 中文
 
-## 概述
+## 摘要
 
-供 Client 控制器与 renderer 适配器共用的不依赖 React 的 observable 和快照存储基础原语。本包负责同步与 animation-frame 发布、基于 Immer 的更新、浅比较和可选的浏览器持久化；React 钩子的构造仍属于 `@deepseek-ai/dsh-client-ui-renderer`。当 Client 状态必须在不依赖 React 的情况下发布稳定快照时，请使用它。
+使用 `createSnapshotStore` 创建可观察的 GUI 状态，使用 `defineStore` 声明操作集合。订阅方读取缓存快照，并显式取消订阅。此私有源码库使用 Zustand 和 Immer，不导入 React、Cordis、Pi 或已移除的 Harness 运行时。
 
 ## 目录
 
+- [使用此包](#use-this-package)
+- [了解实现](#understand-the-implementation)
+- [进一步探索](#further-exploration)
 - [模型体验](#model-experience)
-- [已知限制与暂缓事项](#known-limitations-and-deferred-work)
+- [已知限制和延期工作](#known-limitations-and-deferred-work)
 - [开发备注](#dev-note)
 
 -----
 
+<a id="use-this-package"></a>
+## 使用此包
+
+包的[源码入口](src/index.ts)导出引擎及其[类型化接口](src/contract.ts)。应用直接打包这些源码。每个存储实例由对应的 GUI 生命周期管理，并在生命周期结束时释放订阅。此库没有配置档、插件激活或可执行文件。
+
+<a id="understand-the-implementation"></a>
+## 了解实现
+
+<details>
+<summary>实现细节 — 点击展开</summary>
+
+更新生成新的不可变值；选择器和订阅通知独立于 React。通知默认同步执行，可选择按动画帧合并。可选持久化将完整 JSON 值写入浏览器 localStorage；存储不可用时停用持久化，但不妨碍内存更新。
+
+</details>
+
+<a id="further-exploration"></a>
+## 进一步探索
+
+[Pi Desktop 配置说明](../../../docs/pi-desktop/README.zh.md)介绍使用此库的应用及运行时归属。
+
 <a id="model-experience"></a>
 ## 模型体验
 
-无，因为本包提供浏览器侧状态基础原语，不注册任何面向模型的内容。
-
-#### KV Cache 影响
-
-无；这些存储既不组装也不发送模型请求。
-
-## 已知限制与暂缓事项
+此库不向模型提供工具、提示或会话事件。
 
 <a id="known-limitations-and-deferred-work"></a>
+## 已知限制和延期工作
 
-- **持久化仅限浏览器本地**——持久化存储使用 `localStorage` 中的 JSON；非浏览器运行时会禁用持久化，本包也不提供跨设备同步。
-- **Web 壳构建输入**——静态 ESM 为 Vite 保留第三方导入；独立消费方自行提供开发依赖（[依赖规则](../AGENTS.md#dependency-declaration)）。
-
+- 启用浏览器持久化时，存储值必须可序列化为 JSON。
+- GUI 存储不表示 Pi 凭据、原生会话存储或权威模型上下文。
 
 <a id="dev-note"></a>
 ### 开发备注
 
-<details>
-<summary>维护者工作上下文——点击展开</summary>
-
 无。
-
-</details>
-
-**运行时不变式：** 不发布伴生入口。本包只导出库引擎，不创建进程全局状态；每个存储实例由其所属测试覆盖。

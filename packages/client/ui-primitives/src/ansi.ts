@@ -445,3 +445,13 @@ export function parseAnsiLines(text: string): AnsiLine[] {
   }
   return lines
 }
+
+/** Plain display text for terminal-formatted messages; source records remain unchanged.
+ * An incomplete trailing control sequence is hidden until the next streaming update.
+ */
+export function plainAnsiText(text: string): string {
+  if (!text.includes('\u001b') && !text.includes('\u009b') && !text.includes('\u009d')) return text
+  // eslint-disable-next-line no-control-regex -- Terminal controls are the input being removed.
+  const complete = text.replace(/(?:\u001b\[|\u009b)[0-?]*[ -/]*$|\u001b$/u, '')
+  return parseAnsiLines(complete).map(line => line.map(span => span.text).join('')).join('\n')
+}

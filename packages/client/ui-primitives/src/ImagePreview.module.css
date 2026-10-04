@@ -19,6 +19,6 @@
   gap: 8px;
   padding: 12px;
   color: var(--dsw-alias-label-tertiary);
-  font-size: 12px;
-  line-height: 18px;
+  font-size: calc(12px + var(--dsw-ui-font-delta, 0px));
+  line-height: calc(18px + var(--dsw-ui-font-delta, 0px));
 }

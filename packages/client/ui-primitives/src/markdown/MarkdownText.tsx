@@ -15,7 +15,7 @@ import { memo, useMemo, useRef } from 'react'
 import type { ReactNode } from 'react'
 import clsx from 'clsx'
 import { IncrementalMarkdownParser } from './incremental.ts'
-import { parseGfm, parseGfmWithMath } from './parse.ts'
+import { parseGfmWithMath } from './parse.ts'
 import {
   collectReferenceTargets, createReferenceTargets, renderBlocks, renderFootnoteSection,
   wrapBlockChildren,
@@ -64,7 +64,7 @@ function renderSettled(
  * final, so the tail continues from a copy of it each frame).
  */
 class StreamingRenderer {
-  private readonly parser = new IncrementalMarkdownParser(parseGfm)
+  private readonly parser = new IncrementalMarkdownParser(text => parseGfmWithMath(text, true))
   private generation = -1
   private frozenCount = 0
   private frozenElements: ReactNode[] = []
@@ -150,8 +150,8 @@ class StreamingRenderer {
  * Render untrusted assistant-authored Markdown as semantic React elements.
  * @param props - Markdown source text preserved by the session projection;
  * `streaming` parses incrementally across chunks and highlights fences as
- * they grow (each fence re-tokenizes only appended text; TeX stays literal
- * until the finalize swap so incomplete formulae never flash errors);
+ * they grow. Closed inline formulas and parseable display formulas render
+ * immediately; incomplete TeX stays hidden until it parses or streaming ends.
  * `labels` forwards localized fence and footnote chrome — pass a
  * reference-stable object (memoized per locale revision), because a new
  * identity discards the streaming render cache mid-message. `fileMentions`

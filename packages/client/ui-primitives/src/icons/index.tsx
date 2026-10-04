@@ -130,6 +130,23 @@ export const IconPlusOutlineMedium = (props: IconProps) => (
   <IconPlusOutlineArtwork {...props} strokeWidth={ICON_MEDIUM_STROKE} />
 )
 
+const IconPlusCircleOutlineArtwork = ({ size = 16, className, strokeWidth }: WeightedIconProps) => (
+  <svg width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" strokeWidth={strokeWidth}>
+    <circle cx="8" cy="8" r="6.5" stroke="currentColor" />
+    <path d="M8 5V11M5 8H11" stroke="currentColor" strokeLinecap="round" />
+  </svg>
+)
+
+/** Regular one-pixel circled plus. */
+export const IconPlusCircleOutlineRegular = (props: IconProps) => (
+  <IconPlusCircleOutlineArtwork {...props} strokeWidth={ICON_REGULAR_STROKE} />
+)
+
+/** Medium circled plus with a 1.3px stroke. */
+export const IconPlusCircleOutlineMedium = (props: IconProps) => (
+  <IconPlusCircleOutlineArtwork {...props} strokeWidth={ICON_MEDIUM_STROKE} />
+)
+
 const IconCheckOutlineArtwork = ({ size = 16, className, strokeWidth }: WeightedIconProps) => (
   <svg width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" strokeWidth={strokeWidth}>
     <path d="M2.25 8.5L5.49732 11.7473C5.90519 12.1552 6.57263 12.1344 6.95426 11.7018L13.75 4" stroke="currentColor" />
@@ -147,11 +164,9 @@ export const IconCheckOutlineMedium = (props: IconProps) => (
 )
 
 const IconBranchOutlineArtwork = ({ size = 16, className, strokeWidth }: WeightedIconProps) => (
-  <svg width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" strokeWidth={strokeWidth}>
-    <path d="M1.01503 8.0001L5.6964 8.0001C6.41913 8.0001 6.78049 8.0001 7.12115 7.91951C7.4232 7.84804 7.71233 7.73014 7.97821 7.57C8.27809 7.38939 8.5364 7.13669 9.05303 6.63129L11.3281 4.40564" stroke="currentColor" />
-    <path d="M1.01221 7.9999L5.6964 7.9999C6.41913 7.9999 6.78049 7.9999 7.12115 8.08049C7.4232 8.15196 7.71233 8.26986 7.97821 8.43C8.27809 8.61061 8.5364 8.86331 9.05303 9.36871L11.3281 11.5944" stroke="currentColor" />
-    <circle cx="12.4502" cy="3.3079" r="1.56962" stroke="currentColor" />
-    <circle cx="12.4502" cy="12.6921" r="1.56962" stroke="currentColor" />
+  <svg width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1.5 8H6a3 3 0 0 0 2.12-.88L14 1.5M9 1.5h5v5" stroke="currentColor" />
+    <path d="M6 8a3 3 0 0 1 2.12.88L14 14.5M9 14.5h5v-5" stroke="currentColor" />
   </svg>
 )
 
@@ -163,6 +178,25 @@ export const IconBranchOutlineRegular = (props: IconProps) => (
 /** Medium IconBranchOutline artwork with a 1.3px stroke. */
 export const IconBranchOutlineMedium = (props: IconProps) => (
   <IconBranchOutlineArtwork {...props} strokeWidth={ICON_MEDIUM_STROKE} />
+)
+
+const IconGitBranchOutlineArtwork = ({ size = 16, className, strokeWidth }: WeightedIconProps) => (
+  <svg width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 4.5v7M4 10h3a5 5 0 0 0 5-5v-.5" stroke="currentColor" />
+    <circle cx="4" cy="3" r="1.5" stroke="currentColor" />
+    <circle cx="4" cy="13" r="1.5" stroke="currentColor" />
+    <circle cx="12" cy="3" r="1.5" stroke="currentColor" />
+  </svg>
+)
+
+/** Regular Git branch with connected commit nodes. */
+export const IconGitBranchOutlineRegular = (props: IconProps) => (
+  <IconGitBranchOutlineArtwork {...props} strokeWidth={ICON_REGULAR_STROKE} />
+)
+
+/** Medium Git branch with connected commit nodes. */
+export const IconGitBranchOutlineMedium = (props: IconProps) => (
+  <IconGitBranchOutlineArtwork {...props} strokeWidth={ICON_MEDIUM_STROKE} />
 )
 
 const IconChevronDownOutlineArtwork = ({ size = 14, className, strokeWidth }: WeightedIconProps) => (

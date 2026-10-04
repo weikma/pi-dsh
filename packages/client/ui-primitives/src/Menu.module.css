@@ -103,8 +103,8 @@
   border-radius: var(--dsw-radius-md);
   background: transparent;
   cursor: pointer;
-  font-size: 13px;
-  line-height: 20px;
+  font-size: calc(13px + var(--dsw-ui-font-delta, 0px));
+  line-height: calc(20px + var(--dsw-ui-font-delta, 0px));
   color: var(--dsw-alias-label-primary);
   text-align: left;
 }
@@ -141,8 +141,8 @@
   gap: 5px;
   padding: 2px 6px;
   border-radius: var(--dsw-radius-sm);
-  font-size: 11px;
-  line-height: 17px;
+  font-size: calc(11px + var(--dsw-ui-font-delta, 0px));
+  line-height: calc(17px + var(--dsw-ui-font-delta, 0px));
 }
 
 .compactList .itemIcon {
@@ -156,8 +156,8 @@
 
 .compactList .label {
   padding: 3px 6px;
-  font-size: 10px;
-  line-height: 15px;
+  font-size: calc(10px + var(--dsw-ui-font-delta, 0px));
+  line-height: calc(15px + var(--dsw-ui-font-delta, 0px));
 }
 
 .item:disabled {
@@ -202,8 +202,8 @@
 
 .shortcut .shortcutKeys {
   color: var(--dsw-alias-label-caption);
-  font-size: 11px;
-  line-height: 16px;
+  font-size: calc(11px + var(--dsw-ui-font-delta, 0px));
+  line-height: calc(16px + var(--dsw-ui-font-delta, 0px));
 }
 
 .check {
@@ -243,8 +243,8 @@
 /* Heading row: non-interactive small grey text, padding aligned with items. */
 .label {
   padding: 6px 8px;
-  font-size: 11px;
-  line-height: 15px;
+  font-size: calc(11px + var(--dsw-ui-font-delta, 0px));
+  line-height: calc(15px + var(--dsw-ui-font-delta, 0px));
   color: var(--dsw-alias-label-tertiary);
 }
 

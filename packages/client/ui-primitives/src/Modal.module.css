@@ -78,8 +78,8 @@
 
 .title {
   margin: 0;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: calc(16px + var(--dsw-ui-font-delta, 0px));
+  line-height: calc(24px + var(--dsw-ui-font-delta, 0px));
   font-weight: 500; /* figma wt510, rendered 500 */
   color: var(--dsw-alias-label-primary);
 }
@@ -106,8 +106,8 @@
 .description {
   margin: 0;
   padding: 0 24px;
-  font-size: 14px;
-  line-height: 22px;
+  font-size: calc(14px + var(--dsw-ui-font-delta, 0px));
+  line-height: calc(22px + var(--dsw-ui-font-delta, 0px));
   font-weight: 400;
   color: var(--dsw-alias-label-primary);
 }

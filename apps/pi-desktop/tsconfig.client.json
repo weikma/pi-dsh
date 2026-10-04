@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": [
+      "vite/client",
+      "react",
+      "react-dom",
+      "node"
+    ]
+  },
+  "include": [
+    "client/**/*",
+    "bridge/types.ts",
+    "tests/*.client.spec.tsx"
+  ]
+}

@@ -73,7 +73,7 @@ export function Tooltip({ label, shortcutKeys, side = 'right', align = 'center',
   }, [childRef])
   // The anchor's edges rather than final coordinates: a vertical flip has to
   // re-derive the bubble's own top from the opposite edge.
-  const [pos, setPos] = useState<{ x: number; top: number; bottom: number } | null>(null)
+  const [pos, setPos] = useState<{ x: number; left: number; right: number; top: number; bottom: number } | null>(null)
   const bubble = useRef<HTMLSpanElement | null>(null)
   const resolvedLabel = pos === null
     ? null
@@ -104,18 +104,27 @@ export function Tooltip({ label, shortcutKeys, side = 'right', align = 'center',
     if (pos === null || !visible || suppressed || el === null) return
     const edgeMargin = 12
     let size: ResizeObserverSize | undefined
-    let placement = side
+    let placement: TooltipSide | 'left' = side
     const fit = () => {
       if (size === undefined) return
       const { inlineSize: width, blockSize: height } = size
-      const offset = side === 'right' ? 0 : align === 'end' ? width : width / 2
-      const left = Math.max(edgeMargin, Math.min(pos.x - offset, window.innerWidth - edgeMargin - width))
       const fitsBelow = pos.bottom + gap + height <= window.innerHeight - edgeMargin
       const fitsAbove = pos.top - gap - height >= edgeMargin
+      if (side === 'right') {
+        // Clamping a right-hand bubble horizontally can cover its own button.
+        placement = pos.right + 10 + width <= window.innerWidth - edgeMargin ? 'right'
+          : pos.left - 10 - width >= edgeMargin ? 'left'
+          : fitsAbove ? 'top' : 'bottom'
+      }
       if (placement === 'bottom' && !fitsBelow && fitsAbove) placement = 'top'
       else if (placement === 'top' && !fitsAbove && fitsBelow) placement = 'bottom'
+      const horizontal = placement === 'right' || placement === 'left'
+      const offset = horizontal ? 0 : align === 'end' ? width : width / 2
+      const targetX = horizontal ? placement === 'right' ? pos.right + 10 : pos.left - 10 - width
+        : align === 'end' ? pos.right : (pos.left + pos.right) / 2
+      const left = Math.max(edgeMargin, Math.min(targetX - offset, window.innerWidth - edgeMargin - width))
       el.style.left = `${left + offset}px`
-      el.style.top = `${placement === 'right' ? (pos.top + pos.bottom) / 2
+      el.style.top = `${horizontal ? Math.max(edgeMargin + height / 2, Math.min((pos.top + pos.bottom) / 2, window.innerHeight - edgeMargin - height / 2))
         : placement === 'top' ? pos.top - gap : pos.bottom + gap}px`
       el.dataset.side = placement
       el.style.visibility = 'visible'
@@ -161,6 +170,8 @@ export function Tooltip({ label, shortcutKeys, side = 'right', align = 'center',
     const r = el.getBoundingClientRect()
     setPos({
       x: side === 'right' ? r.right + 10 : align === 'end' ? r.right : r.left + r.width / 2,
+      left: r.left,
+      right: r.right,
       top: r.top,
       bottom: r.bottom,
     })
@@ -193,14 +204,20 @@ export function Tooltip({ label, shortcutKeys, side = 'right', align = 'center',
   }, [cancelShow, withdraw])
   useDismissOnOutsidePointer(anchor, openOnClick && visible, dismiss, bubble)
   useEffect(() => {
-    if (!openOnClick || !visible) return
+    if (!visible) return
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape' && event.key !== 'Tab') return
-      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation() }
+      if (event.key !== 'Escape' && !(openOnClick && event.key === 'Tab')) return
+      if (openOnClick && event.key === 'Escape') { event.preventDefault(); event.stopPropagation() }
       dismiss()
     }
     document.addEventListener('keydown', onKeyDown, true)
-    return () => { document.removeEventListener('keydown', onKeyDown, true) }
+    window.addEventListener('scroll', dismiss, true)
+    window.addEventListener('blur', dismiss)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown, true)
+      window.removeEventListener('scroll', dismiss, true)
+      window.removeEventListener('blur', dismiss)
+    }
   }, [dismiss, openOnClick, visible])
 
   const content = visible && !suppressed && (

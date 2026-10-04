@@ -1,6 +1,6 @@
 .block {
   --dsl-search-radius: var(--dsw-radius-lg);
-  --dsl-search-line-height: 22px;
+  --dsl-search-line-height: calc(22px + var(--dsw-ui-font-delta, 0px));
 
   position: relative;
   margin: 16px 0;

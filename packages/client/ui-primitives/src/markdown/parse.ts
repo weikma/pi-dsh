@@ -1,11 +1,7 @@
 /**
- * The markdown renderer's two mdast grammars, one per rendering arm. Each
- * arm is internally consistent — the incremental tail parses, the one-shot
- * parses, and the plain-text projection of a given grammar always agree on
- * where blocks start and end — and the settled grammar is the streaming one
- * plus the math extensions, so the arms differ only where TeX delimiters
- * begin a math construct (a `$$` block is a paragraph while streaming and a
- * math block once settled, by design).
+ * GFM parsing for text projection and math-enabled message rendering.
+ * Streaming math blocks consume their unfinished body through EOF, keeping
+ * interior blank lines inside the incremental parser's unstable tail.
  */
 
 import type { Root } from 'mdast'
@@ -19,8 +15,7 @@ import { cjkFriendlyStrong } from './cjkFriendlyStrong.ts'
 import { mathCompatibility } from './mathCompatibility.ts'
 
 /**
- * Parse GFM markdown (the streaming arm's grammar: no math, so incomplete
- * TeX never flashes KaTeX errors mid-stream).
+ * Parse GFM markdown without interpreting TeX delimiters.
  * @param text - Markdown source.
  * @returns The mdast root.
  */
@@ -32,14 +27,15 @@ export function parseGfm(text: string): Root {
 }
 
 /**
- * Parse GFM markdown plus TeX math with the compatibility delimiters
- * (the settled arm's grammar).
+ * Parse GFM markdown plus TeX math with the compatibility delimiters.
  * @param text - Markdown source.
+ * @param streaming - Allow unfinished backslash display blocks through EOF;
+ * inline formulas still require a closing delimiter.
  * @returns The mdast root.
  */
-export function parseGfmWithMath(text: string): Root {
+export function parseGfmWithMath(text: string, streaming = false): Root {
   return recoverLocalImages(fromMarkdown(text, {
-    extensions: [gfm(), cjkFriendlyStrong(), mathCompatibility(), math()],
+    extensions: [gfm(), cjkFriendlyStrong(), mathCompatibility(streaming), math()],
     mdastExtensions: [gfmFromMarkdown(), mathFromMarkdown()],
   }), text)
 }

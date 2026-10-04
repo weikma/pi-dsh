@@ -1,0 +1,15 @@
+/* Office viewers share the existing preview pane and theme tokens. */
+.workbook, .document { display: flex; flex: 1; flex-direction: column; min-height: 0; min-width: 0; }
+.toolbar { display: flex; flex: none; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 12px; color: var(--dsw-alias-label-secondary); font-size: calc(12px + var(--dsw-ui-font-delta, 0px)); line-height: calc(18px + var(--dsw-ui-font-delta, 0px)); }
+.sheetTabs { display: flex; flex: none; gap: 4px; padding: 4px 12px 8px; overflow-x: auto; }
+.sheetTabs button { flex: none; padding: 5px 10px; border: 0; border-radius: var(--dsw-radius-sm); color: var(--dsw-alias-label-secondary); background: transparent; font-size: calc(12px + var(--dsw-ui-font-delta, 0px)); line-height: calc(18px + var(--dsw-ui-font-delta, 0px)); cursor: pointer; }
+.sheetTabs button:hover, .sheetTabs button[aria-selected='true'] { color: var(--dsw-alias-label-primary); background: var(--dsw-alias-interactive-bg-hover); }
+.grid { flex: 1; min-height: 0; min-width: 0; overflow: auto; border-block: 0.5px solid var(--dsw-alias-border-l3); background: var(--dsw-alias-bg-base); }
+.table { width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0; color: var(--dsw-alias-label-primary); font-size: calc(12px + var(--dsw-ui-font-delta, 0px)); line-height: calc(20px + var(--dsw-ui-font-delta, 0px)); }
+.table th, .table td { min-width: 100px; max-width: 320px; padding: 5px 10px; border-right: 0.5px solid var(--dsw-alias-border-l3); border-bottom: 0.5px solid var(--dsw-alias-border-l3); text-align: left; font-weight: 400; white-space: pre-wrap; overflow-wrap: anywhere; }
+.table th { position: sticky; color: var(--dsw-alias-label-secondary); background: var(--dsw-alias-bg-layer-2); text-align: center; font-weight: 500; }
+.table thead th { top: 0; z-index: 2; }
+.table tr > th:first-child { left: 0; min-width: 40px; width: 40px; }
+.table thead th:first-child { z-index: 3; }
+.notice { flex: none; margin: 0; padding: 8px 12px; color: var(--dsw-alias-label-secondary); font-size: calc(12px + var(--dsw-ui-font-delta, 0px)); line-height: calc(18px + var(--dsw-ui-font-delta, 0px)); }
+.documentFrame { flex: 1; width: 100%; min-height: 0; border: 0; background: var(--dsw-alias-bg-base); }

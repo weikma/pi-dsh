@@ -1,184 +1,48 @@
 # AGENTS.md
 
-DeepSeek Harness is an all-plugin Cordis agent harness. Read [docs/architecture.md](docs/architecture.md) before changing `packages/`; follow [docs/AGENTS.md](docs/AGENTS.md) for documentation.
+Pi-DSH supplies Electron and local Web GUIs for Pi. Read [architecture](docs/architecture.md), [setup and upgrades](docs/pi-desktop/README.md), and [testing](docs/testing.md) before changing runtime or UI code.
 
-## Pre-stable APIs and released Session data
+## Pi-DSH compatibility
 
-Public APIs are pre-stable; update every consumer. Follow [version/status](docs/session-format-status.md) and [type acknowledgements](docs/cookbook/reviewing-persistence-type-changes.md). [Adjacent migration](.agents/notes/implemented/architecture/2026-08-31-released-session-format-migrations.md) may add a version-named successor but never move, overwrite, or delete committed generations; predecessors imply neither fallback nor downgrade support. SQLite uses monotonic `SCHEMA_VERSION`.
+Verify versions through source and executed checks. Target the full [Pi Coding Agent](https://github.com/earendil-works/pi), not merely a pi-ai model adapter.
 
-Acknowledge [declared persistence-type changes](docs/cookbook/reviewing-persistence-type-changes.md).
+- **Upgrade priority:** preserve independent upstream upgrades for Pi and Desktop; when they conflict, prioritize Pi. Keep Pi unmodified: no source fork, vendored patches, private-module imports, or GUI-driven changes to its agent loop.
+- **Separate runtimes:** execute through official public Pi RPC; configure providers through its selected public authentication SDK in an independent Node sidecar. Keep SDK/worker files outside Electron ASAR and GUI dependencies. Ship pinned Node, Pi, pnpm and Python/Office resources in immutable offline installations. Explicit runtime selection wins; compatible Pi upgrades require no Desktop rebuild. Keep declared Desktop/Web entries; do not restore a DSH CLI or profile launcher.
+- **Explicit CLI selection:** never fall back implicitly to `pi` on PATH. An external selection or `PI_EXECUTABLE` is explicit; the `mode: bundled` selection resolves the current distribution's default instead of pinning an old installation path. Appearance and language saves must not create an external runtime selection.
+- **Startup readiness:** keep shell import and offline runtime preparation off the Desktop window's critical path. Pi/provider/Office operations must await readiness; quit must abort and join the shell and await atomic installation. Never persist the imported environment.
+- **Isolate the bridge:** version the bridge separately; it owns RPC parsing, lifecycle, compatibility and GUI projections. GUI consumes bridge view models, never Pi SDK classes or DSH `SessionEvent`. Concentrate Desktop upstream edits in composition/UI adapters.
+- **Respect ownership:** Pi owns execution, tools, context, authentication, settings, resources and sessions. Forward public inputs without hidden model context or duplicate Harness behavior. Provider login/logout must use Pi’s public authentication API and storage; never directly rewrite credentials or sessions. Validated custom-provider edits may update non-secret models.json fields while preserving other providers, fields and symlink targets. Desktop owns GUI preferences/navigation; never synthesize DSH events or alter historical generations.
+- **Native configuration:** Use selected public SDK APIs and Pi trust. Follow [package ownership](docs/pi-desktop/extensions.md#compatibility): discovery stays read-only; use native package filters, isolated output and joined cancellation. Active extension-provider models use public RPC; settings workers never load extensions or probe endpoints. Package names cannot establish incompatibility; Pi owns package resources and tool registration. Use public command-context reload for resources; explicit native --no-extensions recovery never edits settings. Preserve unrelated fields, credentials and symlinks in native file edits. Use distinct resource/request IDs.
+- **Compose the GUI:** reuse Electron and the retained React libraries in the shared Pi GUI. Keep the removed DSH Harness and Cordis composition out of the runtime. Adapt equivalent controls to Pi semantics; remove unsupported controls and their commands/settings. Unsupported TUI commands use terminal setup instead of model prompts. Render unfamiliar tools generically; never use private Pi APIs or assume stable extension-management protocols.
+- **Verify the target release:** locate runtime selection, bridge, version record and owning tests before a Pi upgrade. Compare official public RPC, exported authentication SDK, CLI/resource and native-session changes. Resolve the SDK from the selected official package only; do not silently substitute bundled SDKs, private modules, or wrapper implementations. Unsupported provider management retains native CLI setup. Recheck capabilities; remembered gaps and RPC compatibility are not authentication SDK guarantees.
+- **Native history controls:** Pi 0.99.1 exposes tree navigation and arbitrary-entry forks through public extension command context `navigateTree` and `fork` with `position: 'at'`; its RPC has no `navigate_tree` command. Keep the owned history extension outside ASAR, require its advertised command, and block navigation while execution, queued input or dialogs are pending. Verify user, intermediate assistant/tool-call and final assistant entries with the actual selected Pi; Pi owns branch/session writes.
+- **Native outcomes:** Preview only v3 history; native RPC owns readiness/migration. Render compaction/branch summaries; apply `thinking_end` immediately. Null contextUsage means unknown; keep composition estimates transient and separate from native totals. `stopReason: 'aborted'` retains partial output without failure notices; pre-text provider failures remain visible. Verify against selected Pi.
+- **Startup API keys:** `--api-key` uses Pi’s public CLI model/scope resolver, never guessed defaults or catalog order. Unresolvable resumed-session scopes require native CLI setup.
+- **Keep upgrade scope narrow:** update the selected Pi installation and only affected bridge/UI integration. Record tested Pi versions, capability limitations, and runnable checks in the bridge's owning documentation when implemented. If the integration or checks are absent, report that explicitly rather than inventing paths, commands, or successful validation.
+- **Validate before claiming completion:** run the owning compatibility checks against the actual target Pi executable, including protocol/startup/shutdown, streaming, tools, supported steering/follow-up, cancellation, and native session resume; cover supported interactions and the affected Desktop platform and local Web flows. Use disposable workspaces and copied sessions for migration checks. Report source/target Pi versions, commands actually run, and any missing runtime, credentials, or checks; version edits alone do not establish a completed upgrade. Follow the repository's existing check and snapshot policies.
+- **Maintain compatibility rules:** during upgrades or compatibility investigations, add newly verified Pi-specific requirements and revise or remove obsolete, superseded, or materially conflicting Pi-specific compatibility rules in this section and owning documentation. Cite target-release evidence and executed checks in the change report; preserve the priority of independent Pi upgrades.
 
-Record each externally perceptible breaking change immediately in an [upgrade guide](.agents/skills/dsh-create-upgrade-guide/SKILL.md).
+## Application ownership
 
-**Application launch.** Only `dsh` profiles launch supported Node apps; package bins, demos, and public SDK argv escapes are forbidden ([rule](docs/architecture.md#application-launch)).
+- Supported application entries are `apps/pi-desktop/main.ts` (Electron) and `server.ts` (the shared loopback Web host), through the declared root scripts. The `pi` script only launches the independently selected official CLI; it is not a DSH-compatible command.
+- `bridge/` owns RPC, provider-worker transport, lifecycle, compatibility and secret-free GUI records; `runtime/` owns official pins, installation, selection and the external public-SDK worker; `client/` owns React presentation. Authentication prompts are transient: never persist entered keys in GUI storage, transcripts or diagnostic output. Auxiliary tools/skills use public Pi extension APIs. Retained libraries contain visual components and browser-safe utilities, not a Harness.
+- Preserve macOS and Windows Desktop support and the Linux carrier. Keep the local Web entry on the same GUI, Host and Pi bridge as Electron. Native-only controls must have a Web alternative or be absent there.
+- `.pi-runtime/`, `.desktop-build/`, runtime selection, credentials and user workspaces are ignored local data. Do not commit secrets or overwrite a running Pi installation. The GUI ASAR and its dependency graph must not contain Pi implementation or SDK packages; the separately executable distribution payload includes the official production closure and its licenses. Desktop upgrades preserve selected Pi.
+- Runtime artifacts require exact versions and official source integrity pins, including target-specific native dependencies. Never execute foreign-target binaries during cross-platform preparation. Verify Node/Pi/Python/pnpm versions and actual tools on the native host, including the public auxiliary extension from packaged Resources; source directories may contain files or empty directories omitted by the packager. External interpreters cannot read Electron ASAR paths: ship their scripts as real resource files. Build-only checks do not establish execution on another platform. Preserve earlier installed runtime directories until an explicit cleanup request.
+- Historical Session fixtures and `docs/persistence-changes/` remain at their committed paths, outside active build/test programs. Never move, overwrite or delete committed session generations. Pi owns its migrations; use copies when validating historical files. Legacy DSH notes and frozen archives describe the removed product, not the Pi runtime.
 
-## Repository layout
+## Development and verification
 
-```
-vendor/      Vendored Cordis (vendor/README.md)
-packages/    @deepseek-ai/dsh-<pkg> workspaces at packages/<group>/<pkg>/
-  core/                 agent/session API
-  api/                  remote BFF
-  typert/               type graphs
-  llm/                  model providers
-  shell/                command execution
-  subprocess/           child-process management
-  ssh/                  SSH execution providers
-  terminal/             persistent terminals
-  ptc-runtime/          PTC execution
-  sandbox/              process confinement
-  deliverables/         turn deliverables
-  fs/                   filesystem access
-  lsp/                  language servers
-  skill/                skill loading
-  web/                  search/fetch tools
-  computer-use/         computer interaction
-  browser-use/          browser interaction
-  compaction/           context compaction
-  context/              request context
-  subagent/             delegated agents
-  jobs/                 background jobs
-  bundle/               profile bundles
-  workflow/             workflow execution
-  webhook/              webhook ingress
-  todo/                 todo_write tool
-  plan/                 logged planning
-  goal/                 session goals
-  schedule/             scheduled follow-ups
-  preset/               agent composition
-  guard/                loop/tool guards
-  extensions/           runtime self-modification
-  hooks/                Claude Code/Codex bridges
-  session/              durable sessions
-  session-query/        browsing/search/export
-  attachment/           binary attachments
-  spill/                output spill
-  storage/              non-session storage
-  workspace/            workspace entities
-  feedback/             human feedback
-  identity/             anonymous identity
-  settings/             user settings
-  credentials/          credentials/authorization
-  acp/                  automation-only ACP
-  interaction/          human interaction
-  boot/                 application boot
-  sdk/                  JSON-RPC SDK
-  host/                 GUI host
-  client/               GUI client
-  mcp/                  external tools
-  experimental/         pre-stable prototypes; public by default with explicit private exceptions
-  test-support/         test infrastructure
-  runtime-diagnostics/  runtime invariants
-  util/                 zero-dependency utilities
-python/      Python SDK/runtime (python/README.md)
-native/      @deepseek-ai/node-addon-system source (native/README.md)
-benchmarks/  performance gates
-.agents/     Agent workflows/notes
-docs/        Documentation (docs/AGENTS.md)
-scripts/     gates and generators
-website/     VitePress documentation projection
-```
+Use `pnpm pi:install [version]`, `pnpm pi --version`, `pnpm runtime:prepare`, `pnpm test:runtime`, `pnpm dev:web`, `pnpm dev:desktop`, `pnpm build`, `pnpm start:web`, `pnpm start:desktop`, `pnpm typecheck`, `pnpm test`, `pnpm test:ui`, `pnpm test:compat`, `pnpm lint`, and `pnpm test:docs`. Read scripts and tests; never invent commands. Package the requested target with its current or requested version; publishing requires explicit authorization.
 
-Package groups: [packages/README.md](packages/README.md).
+- TypeScript is strict; use `.ts` for local imports and the source workspace exports. Do not add assertions to `unknown`, unexplained `any`, or same-process runtime validation solely for statically required values. Validate JSON, config, durable files and process/wire input. Opaque identifiers need distinct types when crossing domains.
+- Document non-obvious exported behavior, ownership, cancellation and failures. Keep comments local and factual. Empty catches name the error and reason; closed discriminated unions must be exhaustive.
+- Native renderers keep sandbox, context isolation, Web security and no Node integration. Preload exposes specific owned actions; validate calling windows and frames. The Host binds loopback and rejects unrelated origins. Keep model output rendering safe through the shared primitives.
+- Prefer existing components, icons and `--dsw-*` design tokens. Check light/dark themes, macOS/Windows window clearance, overlay dismissal/fitting/focus and readable text. Product copy belongs in typed English/Chinese dictionaries and localized primitive props.
+- Tests own their temporary directories, ports and processes; bind test listeners to port zero, synchronize on observable state and await teardown. Real Pi with a scripted provider validates tools and files; mocks alone do not establish compatibility. Never print provider keys.
+- Run focused checks and required compatibility/UI verification before claiming success. Visible changes update their owning recorded fixture or browser evidence. GUI PRs include a real server/Pi interaction recording. Report only commands actually run, with skips and limits distinguished from passes.
+- Validate pristine installation separately from configured sessions: no project, no model credentials, and isolated GUI/Pi data directories. Use actual mouse and keyboard input to check composition, model setup and native window controls before claiming an installer works. Preserve platform caption clearance, fullscreen synchronization, drag recollection and close/restore behavior when replacing composition. Give repaired installers a distinct application version.
+- Documentation states current behavior, one physical line per paragraph. Update bilingual counterparts together. Keep instructions concise and source-owned; frozen archives are not editable. Run `pnpm test:docs` and `git diff --check` after documentation edits.
+- Preserve user changes. Work in a `codex/` branch; do not publish or send messages to others without authorization. Rewritten Git history uses `--force-with-lease`, never raw force.
 
-## Commands
-
-```sh
-pnpm install            # pnpm workspaces, node ^22.19 || >=24
-pnpm run clean           # remove build outputs and safe residue from deleted packages
-pnpm run test           # unit tests
-pnpm run test:coverage  # CI coverage gate: per-file 100% on packages/*/*/src
-pnpm run test:e2e       # real-API tests; self-skip without DEEPSEEK_API_KEY
-pnpm run test:expected  # owner-local process expectations
-pnpm run test:snapshot  # keyless recorded-session replay through shipped profiles; filter: -t <name>
-pnpm run test:snapshot:record  # re-record expected outputs (needs key)
-pnpm run typecheck
-pnpm run lint
-pnpm run duplication    # cross-file TypeScript clone detection
-pnpm run build          # tsc emits lib/types, tsdown bundles runtime
-pnpm run hygiene        # publint + workspace/package/dependency checks + NodeNext consumer check
-pnpm run check:windows-wine  # ONLY when diagnosing a known Windows failure (needs wine); CI owns this signal
-pnpm run doc-sync       # documentation gates (scripts/run-gates.ts)
-pnpm run test:docs      # quick documentation checks (no build; doc-quick aggregate)
-pnpm run website:build  # VitePress build (doubles as dead-link check)
-pnpm dsh --profile headless "task"  # run one task from source (needs DEEPSEEK_API_KEY)
-pnpm run demo:ptc -- "task"  # headless PTC mode run (needs key)
-pnpm run dev:web | dev:desktop  # build, then launch; Web also rebuilds client bundles on edits. start:web | start:desktop skip the build
-make web|dev-web|desktop|dev-desktop|build  # the same commands; ARGS='--no-open' forwards options
-```
-
-### Host sandbox failures
-
-If a required `gh`, `pnpm`, build, test, or generator command fails because the sandbox blocks credentials, network, IPC, watching, or nested `sandbox-exec`, retry unchanged with the narrowest host escalation. Require sandbox evidence; never bypass test failures or the product sandbox.
-
-### Run relevant checks locally
-
-Before pushing, follow [dsh-pre-push-checks](.agents/skills/dsh-pre-push-checks/SKILL.md); report only commands run. After `gh stack sync`, validate immediately; do not merge before checks pass.
-
-- Match evidence to the surface: focused behavior tests, model/user-output snapshots, `doc-sync` for docs, built smokes for published paths, and real-API e2e for providers.
-- Never default to the full suite or repeat a passing check for commit or push. CI owns exhaustive coverage and the platform matrix; rehearse all locally only by explicit request, for CI diagnosis, or for an irreducibly repository-wide change.
-- `test:coverage`, not `test`, is the CI coverage gate ([why](docs/testing.md)).
-- **Web browser automation and GIF recording:** launch with `pnpm dsh web --patch apps/web/tests/pin-browse-picker.overlay.yml` to use the [in-page directory picker](apps/web/tests/pin-browse-picker.overlay.yml); omit this override only when testing native picker behavior explicitly.
-
-## Secrets / .env
-
-Windows packaging/signing: [required reading](apps/desktop/README.md#windows-ev-signing).
-
-Real-API tests/demos read `DEEPSEEK_API_KEY`, optional `DEEPSEEK_BASE_URL`, and root `.env`. cordis.yml allows `!!js` (never `!js`) under plugin `config` and entry `disabled`; other metadata stays literal, so conditional composition also uses overlays ([primer](docs/cordis-primer.md#loader-configuration)). Never commit credentials. CI e2e skips without a key; [testing.md](docs/testing.md) owns key policy.
-
-## Conventions
-
-- Packages use `@deepseek-ai/dsh-<name>`; vendor is [rescoped](docs/rescope.md) and `private: true`. Harness packages declare `@deepseek-ai/cordis` in `peerDependencies`/`devDependencies`. Workspace dependency sections use DSH `workspace:*`, vendor/native `workspace:~` ([rules](.agents/notes/implemented/process/2026-09-22-workspace-release-ranges.md)).
-- ESM everywhere (`"type": "module"`). Use package names across packages and `.ts` in local relative imports. Config subprocesses run built `lib/` under plain Node; source regressions use their declared launcher ([testing policy](docs/testing.md#test-subprocess-launch-modes)). The `dsh` CLI source launch runs through tsx's ESM-only hook (`node --import tsx/esm`); modules it reaches must stay ESM (no CJS-only exports) — Node's native TypeScript modes are unavailable across the engines range ([source-launch contract](.agents/notes/implemented/architecture/2026-07-29-dsh-source-launch-tsx-esm.md)). Raw/Web `cordis.yml` bare plugins must appear in their resolver manifest's `dependencies`; `verify-cordis-config` enforces it.
-- **Registrations are effects**: every contribution goes through `ctx.effect()` / `ctx.on()`; a registry's `register()` returns the disposer.
-- **Runtime invariants assert owned relationships.** Publish `./invariant` only when independent observations can diverge. Otherwise omit its source and wiring and record why in its README; empty installers and checks of service presence, plugin metadata, effects, or fixed examples are invalid ([package invariant rules](packages/AGENTS.md)).
-- **Typed events use declaration merging** and merge-extensible maps. Event JSDoc needs `@mode` and payload `@param`; scoped keys absent from payloads need `@dshScopeScan unsupported`. Public service methods document parameters and non-void returns. `SessionEventMap` members are required-on-read by default — builds that do not know a type refuse the log unless the event carries the envelope's `ignorable: true`; only structural format changes bump `SESSION_FORMAT_VERSION` ([mechanism](.agents/notes/implemented/architecture/2026-08-10-session-log-version-mechanism.md)).
-- **Switch on discriminant tags.** Closed unions end in `assertNever`; merge-extensible unions fall through a documented default.
-- **Waterfall listeners MUST call `next()`** to delegate; returning without it short-circuits the chain ([semantics](docs/cordis-primer.md#cordis-waterfall-semantics)).
-- **Model-visible ⟺ logged**: anything that reaches a model request must be reconstructable from the session log; a new model-visible input requires a session event.
-- **Plugins, not loop changes**: new behavior goes on documented extension points; changing `agent-loop` requires updating docs/architecture.md.
-- **A capability seam comprises Service Definition / Service Provider / Consumer roles.** It is complete, never one role; split only when roles evolve independently ([glossary](docs/glossary.md#capability-seam)).
-- **Prefer maintained dependencies over hand-rolling** when they genuinely delete owned code and tests ([policy](.agents/notes/implemented/process/2026-07-26-dependencies-over-hand-rolling.md)).
-- **Explicit > implicit at package boundaries**: defaulting is an explicit `resolve(request): Spec` step in the owning implementation, never a hidden `?? default` inside `run()` (the `dsh-shell` request/spec split is the template).
-- **No hardcoded tunables in plugins**: deployment-varying choices are validated `Config` fields changeable from cordis.yml; a `DEFAULT_*` constant or test hook is not configurability. Protocol constants, external specs, and security invariants stay fixed.
-- **Misconfiguration fails loud** at load when self-contained, otherwise at the earliest resolvable point; never silently skip a missing referent.
-- **Opaque cross-boundary ids are branded** (`Branded<B>` from `dsh-brand`), never bare `string`.
-- **Trust TypeScript at typed same-process boundaries.** Do not add runtime validation, fallback behavior, or hostile-input tests solely for values the static interface requires; validate at parser/config, queued, model/tool JSON, durable/file, worker, process, and wire boundaries.
-- **No new assertions to `unknown`** (`as unknown` or `<unknown>`). Preserve or reduce the exact legacy baseline; use typed values or validation for replacements ([rule](.agents/notes/implemented/process/2026-09-19-no-unknown-casts.md)).
-- **Source plane vs artifact plane, never mixed.** Static gates and tests resolve workspace imports through tsconfig `paths` to `src` and pass on a clean tree; gates consuming built `lib/` declare that dependency ([layout](docs/development.md#typescript-project-layout)).
-- **Keep compiler faces explicit.** A package with both Host and Client programs exposes face-specific leaf configs and a solution-only root; repo-wide programs seed a face config, never the root solution ([layout](docs/development.md#typescript-project-layout)).
-- **An empty `catch` names the error** and why; keep its `try` to one statement.
-- **Keep comments local.** Do not restate code, expand unrelated comments, or explain distant behavior without local need ([rationale](.agents/notes/implemented/process/2026-08-09-concrete-prose-names-actors-and-recorded-facts.md)).
-- **Ban `prove` + `nance`** ([rule](.agents/notes/implemented/process/2026-08-26-ban-ambiguous-origin-label.md)).
-- **Prefer symmetry for parallel values**; unexplained asymmetry usually signals a missed extraction.
-- **Tests describe behavior, not correctness.** Change obsolete behavior with its tests; explain why in the PR.
-- **Create Agent Notes only for durable decision rationale;** mechanical/local edits are exempt, including local UI changes ([scope](.agents/notes/README.md#when-to-write-one)). Archived notes are frozen: never edit or treat them as current authority ([archive policy](.agents/notes/README.md#archiving-and-deletion)).
-- **Client UI copy is locale-owned.** Route product text through typed dictionaries and `t` or localized primitive props; `verify-client-ui-i18n` rejects hardcoded copy ([decision](.agents/notes/implemented/architecture/2026-08-23-locale-owned-client-ui-copy.md)).
-- **Testing policy** — [docs/testing.md](docs/testing.md). Every non-trivial model- or product-user-visible change updates a keyless recorded-session snapshot; [snapshot ownership](snapshots/AGENTS.md) reserves the top-level tree for session-driven cases and keeps other expected output owner-local. Fixtures replay on macOS/Linux; fix fixtures, not normalizers.
-- **Design each tool's UI presentation up front.** Host presenters stay pure; Web cards derive from raw events and persisted result metadata ([cookbook](docs/cookbook/adding-a-tool.md)).
-- **Plan unit, e2e, and snapshot coverage** for capability seams, lifecycle paths, and transcript output; include missing snapshot-harness support in the same change.
-- **Both SDKs project the loop.** Agent-loop, session-lifecycle, and `SessionEventMap` changes update the TypeScript and Python SDK expected outputs in the same PR; `pnpm run test` covers neither ([surfaces](docs/testing.md#when-a-snapshot-test-is-required)).
-- **Choose PR history deliberately.** Split independent changes and fix the introducing PR before propagation. Standalone/stack branches may merge-forward or rebase. Rewrites use `--force-with-lease`, abort on remote movement, never raw `--force`; preserve an in-progress merge-forward checkpoint before taking a newer base ([rationale](.agents/notes/implemented/process/2026-08-02-native-github-stacks-and-optional-rebases.md)).
-- **Labels:** one PR `kind/*`, all material `area/*`, and native Issue Type ([taxonomy](.agents/notes/implemented/process/2026-08-08-unified-github-label-taxonomy.md)).
-- TODO markers: `FIXME`/`TODO`/`XXX` by urgency ([semantics](docs/development.md)).
-- Files end with exactly one trailing newline; `git diff --cached --check` (pre-commit) gates it.
-
-## Defensive patterns
-
-Read [docs/defensive-patterns.md](docs/defensive-patterns.md) before lifecycle, concurrency, subprocess, or teardown work.
-
-## Type safety and documentation
-
-Everything compiles under `strict: true` with `noImplicitAny`; every remaining `any` explains why narrowing is infeasible. Every module and export has concise JSDoc for its non-obvious contract; function-like exports include `@param`/`@returns`, as enforced by `verify-export-jsdoc`. Heritage-declared members, plugin-protocol slots, and constructors keep their docs at the declaring Service Definition, protocol, or class.
-
-Comments and docs state complete contracts and context, not reasoning transcripts. Use direct, concrete terms. Do not use metaphors. Before writing `contract`, `boundary`, or `shape`, ask whether a more exact term names the subject: write `response fields`, `JSON validation`, or `ESM exports` instead of `response shape`, `validation boundary`, or `module shape`. Keep `contract` for preconditions, postconditions, invariants, compatibility promises, and other obligations that callers, callees, implementers, providers, producers, or consumers rely on. Keep a literal process, wire, security, transaction, or lifecycle boundary. Do not narrate control flow or tests, preserve review history, or restate code. Keep behavior, failure, timing, ownership, and safe-use facts; link the rationale. Use [dsh-prose-standard](.agents/skills/dsh-prose-standard/SKILL.md) for decisions. Wire mechanically checkable invariants into an executed top-level gate and prove each changed acceptance path rejects an invalid case. Use narrow, justified exceptions instead of disabling a rule globally.
-
-Docs accompany every code change: update affected README and JSDoc contracts together. Routine bilingual work follows [docs/AGENTS.md](docs/AGENTS.md); only explicit user invocation may run `dsh-translate-docs`. Current-state prose, one physical line per paragraph, one home per fact, and word budgets live there.
-
-## Editing these instructions
-
-`CLAUDE.md` symlinks `AGENTS.md` at root and `packages/`; edit the real file. Keep each rule self-contained while linking high-level docs. Condense when clarity survives; raise a `verify-doc-budgets` ceiling when the required content genuinely needs more space.
-
-## Vendoring policy
-
-`vendor/` packages are pinned source copies (manifest with upstream SHAs in [vendor/README.md](vendor/README.md)). Update via the sync procedure there; re-apply or retire the logged local modifications; rerun `pnpm run test && pnpm run build`.
+`CLAUDE.md` links this file; edit the real `AGENTS.md`.

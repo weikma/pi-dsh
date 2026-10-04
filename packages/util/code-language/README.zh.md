@@ -1,50 +1,59 @@
 ---
-description: "Client 代码界面与 Host read 卡片共享的唯一「扩展名 → 语法高亮语言」表。"
+description: "供 GUI 语法高亮预览使用的浏览器安全文件后缀映射。"
 kind: "package-library"
 ---
 
-# dsh-util-code-language
+# @deepseek-ai/dsh-util-code-language
 
 [English](README.md) | 中文
 
-## 概述
+## 摘要
 
-本仓库唯一的「文件扩展名 → 语法高亮语言」表，供 Client 的文档 Code 预览、diff 审阅与 Host read 工具持久化的 `lang` 提示共同使用。`languageForPath` 以大小写不敏感的方式把文件名或路径映射为规范化 grammar id；`CODE_HIGHLIGHT_EXTENSIONS` 列出预览注册可以声明的全部后缀。`readLangHintForPath` 在同一张表上把 read 卡片的短 id 投影出来：已录制的会话已经持有该后缀的值时保持该持久化值不变，其余后缀取该语言的短名。该包可在浏览器使用，不提供 Cordis service，也不持有运行时状态；真正的分词仍由 Client 高亮器负责。
+使用 `languageForPath` 根据文件名选择语法高亮语言。`CODE_HIGHLIGHT_EXTENSIONS` 提供人工维护的后缀集合。此私有源码库无状态，由使用方加载语法及分词。
 
 ## 目录
 
-- [语言选择](#language-selection)
-- [已知限制与暂缓事项](#known-limitations-and-deferred-work)
+- [使用此包](#use-this-package)
+- [了解实现](#understand-the-implementation)
+- [进一步探索](#further-exploration)
+- [模型体验](#model-experience)
+- [已知限制和延期工作](#known-limitations-and-deferred-work)
 - [开发备注](#dev-note)
 
 -----
 
-<a id="language-selection"></a>
-## 语言选择
+<a id="use-this-package"></a>
+## 使用此包
 
-表位于 [`src/index.ts`](src/index.ts)。每个键是规范化语言 id——即 Client 高亮器解析的 grammar id；每个值是选中它的、不含点的小写扩展名。`languageForPath(path)` 取路径最后一段的最后一个点之后的文本、转小写后在 `Map` 中查找；使用 `Map` 可避免 `foo.constructor` 这类文件名解析到 `Object.prototype` 成员。未列入表的 dotfile（`.gitignore`）、无扩展名、结尾点、未知后缀都返回 `undefined`，各消费方一律按纯文本渲染；前导点仍算分隔符，因此 `.env` 解析为 `dotenv`。`/` 与 `\` 都算路径分隔符，因此 Windows 路径与 POSIX 路径解析一致。
+从[源码入口](src/index.ts)导入映射。GUI 直接打包此 TypeScript 源码，并将无法识别的后缀渲染为纯文本。此库没有插件配置、原生依赖或可执行文件。
 
-该集合按常见源码、配置、脚本、数据与标记扩展名精选，并非完整语言登记表。没有对应 grammar 的扩展名映射到最接近的 grammar（`properties` 映射到 `ini`，该 grammar 自带 `properties` alias）；证书与锁文件扩展名（`pem`、`crt`、`key`、`cer`、`lock`）不列入表。CSV 映射为 `csv`；预览注册表将专用查看器排在 Code 之前，因此 Spreadsheet 仍是它的默认预览。`readLangHintForPath` 在同一张表上做投影：已录制的会话已经持有该后缀的值时返回该持久化短 id，其余后缀返回该语言的短名（`powershell`→`ps1`），无法识别的后缀返回 `undefined`——持久化字段因此只有一种风格，即短名；对 `kotlin`、`swift`、`yaml`、`json` 等语言，短名与 grammar id 相同；而 `tsx`、`tf`、`tfvars`、`gradle` 这些后缀本身的名字更准确，保留其自身名字。消费方若希望 Client 高亮器真正分词，仍取决于该 grammar 已在其中注册——没有加载 grammar 的 id 会按纯文本渲染，而不是报错。
+<a id="understand-the-implementation"></a>
+## 了解实现
 
------
+<details>
+<summary>实现细节 — 点击展开</summary>
 
-## 已知限制与暂缓事项
+语言选择读取最后一个路径段，并以不区分大小写的方式匹配其后缀。它接受 POSIX 和 Windows 分隔符。同一张表还提供兼容性提示辅助函数，不读取文件或执行高亮器。
+
+</details>
+
+<a id="further-exploration"></a>
+## 进一步探索
+
+[Pi Desktop 配置说明](../../../docs/pi-desktop/README.zh.md)介绍使用此库的应用及运行时归属。
+
+<a id="model-experience"></a>
+## 模型体验
+
+此库不向模型提供工具、提示或会话事件。
 
 <a id="known-limitations-and-deferred-work"></a>
+## 已知限制和延期工作
 
-- **只匹配扩展名**——`languageForPath` 只看后缀，因此 `Dockerfile`、`Makefile`、`.gitignore`、`.editorconfig` 这类靠文件名识别的名称仍不表。文件名规则暂缓。
-- **不做内容嗅探**——扩展名缺失或未知时，即使字节含义明确也按纯文本处理；本表从不读取内容。
-- **精选而非穷举**——本表小于 Shiki 的 grammar 目录与 GitHub linguist；新增语言意味着同时添加扩展名条目与 Client grammar 注册。
-
+- 映射表匹配后缀，不检查内容，也不提供通用文件名规则。
+- 使用方必须加载返回的语法；未知或不可用的语法仍渲染为纯文本。
 
 <a id="dev-note"></a>
 ### 开发备注
 
-<details>
-<summary>维护者工作上下文——点击展开</summary>
-
 无。
-
-</details>
-
-**运行时不变式：** 不发布伴生入口。这个工具不持有可变运行时关系。

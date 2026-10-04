@@ -28,11 +28,11 @@
   border: none;
   outline: none;
   background: transparent;
-  font-size: 14px;
-  line-height: 22px;
+  font-size: calc(14px + var(--dsw-ui-font-delta, 0px));
+  line-height: calc(22px + var(--dsw-ui-font-delta, 0px));
   color: var(--dsw-alias-label-primary);
 }
 
 .input::placeholder {
-  color: var(--dsw-alias-label-dimmed);
+  color: var(--dsw-alias-label-secondary);
 }

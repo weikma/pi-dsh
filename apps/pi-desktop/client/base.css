@@ -1,0 +1,27 @@
+html, body, #root { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+html { --dsh-frame-top-clearance: 0px; }
+html[data-platform='darwin'][data-desktop] { --dsh-frame-top-clearance: 48px; }
+html[data-windows-titlebar] {
+  --dsh-frame-top-clearance: var(--dsh-windows-titlebar-height);
+  --dsh-frame-chrome-top: var(--dsh-windows-titlebar-height);
+}
+html[data-platform='darwin'][data-desktop], html[data-windows-titlebar] {
+  --dsh-frame-overlay-top: calc(var(--dsh-frame-top-clearance) + 20px);
+}
+html[data-platform='darwin'][data-desktop][data-fullscreen], html[data-windows-titlebar][data-fullscreen] {
+  --dsh-frame-overlay-top: 20px;
+  --dsh-frame-chrome-top: 0px;
+}
+body { font-family: var(--dsw-font-family); font-size: calc(14px + var(--dsw-ui-font-delta, 0px)); color: var(--dsw-alias-label-primary); background: var(--dsw-alias-bg-base); isolation: isolate; }
+html[data-platform='darwin'][data-desktop] body { background: transparent; }
+button, input, textarea { font-family: inherit; }
+button { -webkit-app-region: no-drag; }
+* { box-sizing: border-box; }
+html[data-desktop] [data-window-drag] { -webkit-app-region: drag; }
+html[data-platform='darwin'][data-desktop] [data-window-drag-recall],
+html[data-desktop] body > :not(#root),
+html[data-desktop] :is(button, a, input, select, textarea, summary, [contenteditable='true'], [tabindex],
+  [role='dialog'], [role='alertdialog'], [role='menu'], [role='listbox'], [role='tooltip'],
+  [role='button'], [role='link'], [role='tab'], [role='menuitem'], [role='menuitemcheckbox'],
+  [role='menuitemradio'], [role='option'], [role='checkbox'], [role='radio'], [role='switch'],
+  [role='slider'], [role='combobox'], [role='textbox']) { -webkit-app-region: no-drag; }

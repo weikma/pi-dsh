@@ -300,13 +300,13 @@ describe('MarkdownText', () => {
     expect(live.container.querySelector('pre.shiki')?.textContent).toBe('const answer = 42')
   })
 
-  it('streaming keeps unknown and language-less fences on the plain arm, and ```math literal until settle', () => {
+  it('streaming keeps unknown and language-less fences literal and renders math fences', () => {
     const live = render(
       <MarkdownText text={'```cobol\nDISPLAY "X".\n```\n\n```\nno language\n```\n\n```math\n\\sqrt{2}\n```'} streaming />,
     )
     expect(live.container.querySelector('pre.shiki')).toBeNull()
-    expect(live.container.querySelector('.katex')).toBeNull()
-    expect(live.container.textContent).toContain('\\sqrt{2}')
+    expect(live.container.querySelector('.katex annotation')?.textContent).toBe('\\sqrt{2}\n')
+    expect(live.container.querySelectorAll('pre')).toHaveLength(2)
   })
 
   it('forwards localized labels to fenced code blocks', () => {
@@ -550,16 +550,16 @@ describe('MarkdownText', () => {
     expect(mathCompatibility()).toBe(extension)
   })
 
-  it('defers TeX rendering while streaming so incomplete formulas never flash KaTeX errors', () => {
+  it('hides incomplete TeX and renders the completed formula before streaming ends', () => {
     const partial = '$$\n\\frac{\\partial \\mathbf{u}}{\\partial'
     const complete = '$$\n\\frac{\\partial \\mathbf{u}}{\\partial t}\n$$'
     const live = render(<MarkdownText text={partial} streaming />)
 
     expect(live.container.querySelector('.katex')).toBeNull()
     expect(live.container.querySelector('.katex-error')).toBeNull()
-    expect(live.container.textContent).toContain('\\frac{\\partial \\mathbf{u}}{\\partial')
+    expect(live.container.textContent).not.toContain('\\frac')
 
-    live.rerender(<MarkdownText text={complete} />)
+    live.rerender(<MarkdownText text={complete} streaming />)
     expect(live.container.querySelectorAll('.katex')).toHaveLength(1)
     expect(live.container.querySelectorAll('.katex-display')).toHaveLength(1)
     expect(live.container.querySelector('.katex-error')).toBeNull()

@@ -6,6 +6,8 @@ import { writeClipboard } from './clipboard.ts'
 import { CodeToolbar, type CodeToolbarLabels } from './CodeToolbar.tsx'
 import { languageForPath } from './code-highlighting.ts'
 import cardCss from './CodeCard.module.css'
+import { useCodeAppearance } from './CodeAppearance.tsx'
+import { codeThemeStyle } from './code-themes.ts'
 import css from './DiffBlock.module.css'
 
 /** Output lines shown before the height cap collapses the middle. */
@@ -49,6 +51,8 @@ export interface DiffBlockLabels extends CodeToolbarLabels {
 interface DiffRow {
   kind: 'path' | 'del' | 'add' | 'context' | 'gap'
   text: string
+  oldNumber?: number
+  newNumber?: number
 }
 
 /** Local exhaustiveness helper — this package does not depend on `dsh-llm`. */
@@ -76,7 +80,7 @@ function localHunks(diff: DiffHunk) {
   const normalize = (lines: string[]): string => lines.map(line => `${line}\n`).join('')
   return structuredPatch('', '', normalize(oldLines), normalize(newLines),
     undefined, undefined, { context: 3, maxEditLength: MAX_DIFF_EDIT_LENGTH })?.hunks
-    ?? [{ lines: [...oldLines.map(line => `-${line}`), ...newLines.map(line => `+${line}`)] }]
+    ?? [{ oldStart: 1, newStart: 1, lines: [...oldLines.map(line => `-${line}`), ...newLines.map(line => `+${line}`)] }]
 }
 
 /**
@@ -116,9 +120,14 @@ function buildRows(diffs: DiffHunk[]): DiffRow[] {
     prevPath = diff.path
     for (const [index, hunk] of localHunks(diff).entries()) {
       if (index > 0) rows.push({ kind: 'gap', text: '⋯' })
+      let oldNumber = hunk.oldStart
+      let newNumber = hunk.newStart
       for (const line of hunk.lines) {
         const kind = line.startsWith('-') ? 'del' : line.startsWith('+') ? 'add' : 'context'
-        rows.push({ kind, text: line.slice(1) })
+        rows.push({ kind, text: line.slice(1),
+          ...(kind === 'add' ? {} : { oldNumber: oldNumber++ }),
+          ...(kind === 'del' ? {} : { newNumber: newNumber++ }),
+        })
       }
     }
   }
@@ -166,10 +175,14 @@ function copyText(rows: DiffRow[]): string {
  * @returns the diff block element.
  */
 export function DiffBlock({ diffs, labels, maxLines = DEFAULT_DIFF_MAX_LINES, className }: DiffBlockProps) {
+  const appearance = useCodeAppearance()
+  const theme = appearance?.theme ?? 'css-variables'
+  const lineNumbers = appearance?.lineNumbers ?? false
   const rows = useMemo(() => buildRows(diffs), [diffs])
   const [expanded, setExpanded] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [wrapped, setWrapped] = useState(false)
+  const [localWrapped, setWrapped] = useState(false)
+  const wrapped = appearance?.wrap ?? localWrapped
   const firstLanguage = diffs[0] === undefined ? undefined : languageForPath(diffs[0].path)
   const language = diffs.every(diff => languageForPath(diff.path) === firstLanguage) ? firstLanguage : undefined
 
@@ -195,14 +208,17 @@ export function DiffBlock({ diffs, labels, maxLines = DEFAULT_DIFF_MAX_LINES, cl
   const head = capped ? rows.slice(0, headLines) : rows
   const tail = capped ? rows.slice(rows.length - tailLines) : []
 
+  const renderRow = (row: DiffRow, index: number) => <div key={index} className={css.line}>
+    {lineNumbers && <span className={css.gutter} aria-hidden><span>{row.oldNumber}</span><span>{row.newNumber}</span></span>}
+    <span className={clsx(css.text, ROW_CLASS[row.kind])}>{row.text}</span>
+  </div>
+
   return (
-    <div className={clsx(cardCss.card, css.block, className)} data-diff="" data-code-wrap={wrapped}>
+    <div className={clsx(cardCss.card, css.block, className)} data-diff="" data-code-wrap={wrapped} data-line-numbers={lineNumbers} data-code-theme={theme} style={codeThemeStyle(theme)}>
       <CodeToolbar lang={language} labels={labels} copyLabel={labels.copy} copiedLabel={labels.copied}
-        copied={copied} wrapped={wrapped} onCopy={onCopy} onWrap={() => { setWrapped(value => !value) }} />
+        copied={copied} wrapped={wrapped} onCopy={onCopy} onWrap={appearance === undefined ? () => { setWrapped(value => !value) } : undefined} />
       <div className={css.body}>
-        {head.map((row, index) => (
-          <div key={index} className={clsx(css.line, ROW_CLASS[row.kind])}>{row.text}</div>
-        ))}
+        {head.map(renderRow)}
         {hidden > 0 && (
           <FoldToggle
             className={css.expand}
@@ -212,9 +228,7 @@ export function DiffBlock({ diffs, labels, maxLines = DEFAULT_DIFF_MAX_LINES, cl
             onToggle={onToggle}
           />
         )}
-        {tail.map((row, index) => (
-          <div key={index} className={clsx(css.line, ROW_CLASS[row.kind])}>{row.text}</div>
-        ))}
+        {tail.map(renderRow)}
       </div>
     </div>
   )

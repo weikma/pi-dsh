@@ -53,9 +53,9 @@
 
 .sourceLink {
   color: var(--dsw-alias-link);
-  font-size: 14px;
+  font-size: calc(14px + var(--dsw-ui-font-delta, 0px));
   font-weight: 500;
-  line-height: 20px;
+  line-height: calc(20px + var(--dsw-ui-font-delta, 0px));
   word-break: break-word;
   text-decoration: none;
 }
@@ -78,8 +78,8 @@
 .snippet {
   margin-top: 2px;
   color: var(--dsw-alias-label-secondary);
-  font-size: 13px;
-  line-height: 19px;
+  font-size: calc(13px + var(--dsw-ui-font-delta, 0px));
+  line-height: calc(19px + var(--dsw-ui-font-delta, 0px));
   word-break: break-word;
 }
 
@@ -110,9 +110,9 @@
 .fetchUrl {
   color: var(--dsw-alias-link);
   font-family: var(--ds-font-family-code);
-  font-size: 13px;
+  font-size: calc(13px + var(--dsw-ui-font-delta, 0px));
   font-weight: 500;
-  line-height: 19px;
+  line-height: calc(19px + var(--dsw-ui-font-delta, 0px));
   word-break: break-all;
   text-decoration: none;
 }

@@ -1,0 +1,12 @@
+.header { display: flex; align-items: center; gap: 6px; padding: 4px; }
+.header > span { flex: 1; min-width: 0; }
+.header input { width: 100%; min-width: 0; }
+.back { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: var(--dsw-radius-md); color: var(--dsw-alias-label-primary); background: transparent; cursor: pointer; }
+.back:hover { background: var(--dsw-alias-interactive-bg-hover); }
+.path { display: flex; justify-content: space-between; gap: 12px; padding: 4px 8px 8px; font-size: calc(12px + var(--dsw-ui-font-delta, 0px)); color: var(--dsw-alias-label-secondary); }
+.path span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.path button { flex: none; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.notice { display: flex; gap: 8px; align-items: center; padding: 8px; font-size: calc(13px + var(--dsw-ui-font-delta, 0px)); overflow-wrap: anywhere; color: var(--dsw-alias-label-primary); }
+.empty { margin: 12px 8px; color: var(--dsw-alias-label-secondary); font-size: calc(13px + var(--dsw-ui-font-delta, 0px)); }
+.loading { flex: none; align-self: center; width: 20px; height: 20px; margin: 20px; border-radius: 50%; corner-shape: round; border: 2px solid var(--dsw-alias-border-l1); border-top-color: var(--dsw-alias-label-secondary); animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }

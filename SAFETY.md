@@ -2,26 +2,8 @@
 
 English | [中文](SAFETY.zh.md)
 
-## Experimental status
+Pi-DSH launches the official Pi Coding Agent with the permissions of its operating-system user. Pi tools and extensions can read files, modify projects and run commands; the GUI does not sandbox agent execution. Review the selected Pi runtime and extensions, and use disposable environments for untrusted work.
 
-DeepSeek Harness is experimental developer-preview software. It has not undergone a security audit and must not be treated as secure or production-ready.
+The shared Host binds to loopback and validates Host and Origin headers. Electron renderers use context isolation, sandboxing and no Node integration. These controls protect GUI access; they do not confine Pi tool execution.
 
-The project can execute model-generated code and commands, load third-party plugins, and access the network, processes, credentials, and files made available to it. Incorrect model output, defects, misconfiguration, malicious input, or untrusted plugins may damage the host computer, modify or delete files, disclose data or credentials, or cause other unintended effects.
-
-## Sandbox limitations
-
-Sandboxing, approval prompts, and permission controls can reduce risk, but they do not guarantee isolation or prevent damage. Even correctly enforced restrictions cannot protect resources that the project is allowed to access.
-
-Do not rely on DeepSeek Harness as the sole security control for untrusted workloads.
-
-## Responsible use
-
-- Run the project with the least privileges and access required.
-- Prefer a disposable virtual machine, container, or dedicated environment.
-- Keep backups of files that the project can access.
-- Do not expose sensitive credentials or data unless you accept the risk.
-- Review plugins, configuration, and proposed commands before allowing them to run.
-
-## No warranty or liability
-
-Use DeepSeek Harness at your own risk. The software is provided without warranty under the [MIT License](LICENSE). To the maximum extent permitted by applicable law, the authors and copyright holders are not responsible for damage to computers, loss or disclosure of data, loss of files, or other harm arising from use of the project.
+Keep credentials in Pi-owned configuration and keep backups of accessible files. This project has not undergone a security audit. The software is provided under the [MIT License](LICENSE), without warranty.

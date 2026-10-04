@@ -106,14 +106,15 @@ describe('incremental streaming rendering', () => {
     live.unmount()
   })
 
-  it('settles into the full math-enabled render after streaming', () => {
+  it('preserves rendered math through the final full parse', () => {
     const doc = 'Value $E = mc^2$ inline.\n\nSecond.\n\nThird.\n\nFourth.'
     const live = render(<MarkdownText text={doc} streaming />)
-    expect(live.container.querySelector('.katex')).toBeNull()
+    const formula = live.container.querySelector('.katex')
+    expect(formula).not.toBeNull()
     live.rerender(<MarkdownText text={doc} />)
     const settled = render(<MarkdownText text={doc} />)
     expect(live.container.innerHTML).toBe(settled.container.innerHTML)
-    expect(live.container.querySelector('.katex')).not.toBeNull()
+    expect(live.container.querySelector('.katex')).toBe(formula)
     live.unmount()
     settled.unmount()
   })

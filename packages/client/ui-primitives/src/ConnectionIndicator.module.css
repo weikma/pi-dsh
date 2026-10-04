@@ -10,9 +10,9 @@
   border: 1px solid transparent;
   border-radius: var(--dsw-radius-sm);
   font-family: inherit;
-  font-size: 12px;
+  font-size: calc(12px + var(--dsw-ui-font-delta, 0px));
   font-weight: 500;
-  line-height: 18px;
+  line-height: calc(18px + var(--dsw-ui-font-delta, 0px));
   white-space: nowrap;
   transition:
     background-color 160ms ease-out,

@@ -211,7 +211,7 @@ describe('Tooltip', () => {
     expect(bubble.textContent).toBe('Open sidebar')
     expect(bubble.getAttribute('data-side')).toBe('right')
     expect(bubble.style.left).toBe('12px')
-    expect(bubble.style.top).toBe('0px')
+    expect(bubble.style.top).toBe('12px')
     fireEvent.mouseLeave(anchor)
     expect(screen.queryByRole('tooltip')).toBeNull()
   })
@@ -284,6 +284,45 @@ describe('Tooltip', () => {
     } finally {
       spy.mockRestore()
     }
+  })
+
+  it('places a right tooltip to the left when the viewport edge would push it over its anchor', () => {
+    bubbleSize = { inlineSize: 200, blockSize: 26 }
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue(new DOMRect(970, 400, 28, 28))
+    render(<Tooltip label="Branch from this message" portal><button>anchor</button></Tooltip>)
+    fireEvent.mouseEnter(screen.getByText('anchor'))
+    const bubble = screen.getByRole('tooltip')
+    expect(bubble.dataset.side).toBe('left')
+    expect(Number.parseFloat(bubble.style.left) + bubbleSize.inlineSize).toBeLessThanOrEqual(970 - 8)
+  })
+
+  it('uses vertical separation when neither horizontal side fits', () => {
+    vi.stubGlobal('innerWidth', 250)
+    bubbleSize = { inlineSize: 150, blockSize: 26 }
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue(new DOMRect(80, 100, 80, 28))
+    render(<Tooltip label="Copy message" portal><button>anchor</button></Tooltip>)
+    fireEvent.mouseEnter(screen.getByText('anchor'))
+    const bubble = screen.getByRole('tooltip')
+    expect(bubble.dataset.side).toBe('top')
+    expect(Number.parseFloat(bubble.style.top)).toBeLessThanOrEqual(100 - 8)
+  })
+
+  it('dismisses an ordinary tooltip on Escape without swallowing the application shortcut', () => {
+    const escape = vi.fn()
+    render(<div onKeyDown={escape}><Tooltip label="Copy message" portal><button>anchor</button></Tooltip></div>)
+    const anchor = screen.getByText('anchor')
+    fireEvent.mouseEnter(anchor)
+    fireEvent.keyDown(anchor, { key: 'Escape' })
+    expect(screen.queryByRole('tooltip')).toBeNull()
+    expect(escape).toHaveBeenCalledOnce()
+  })
+
+  it('dismisses a tooltip when a nested transcript scrolls away from the hovered anchor', () => {
+    render(<div data-testid="transcript"><Tooltip label="Copy message" portal><button>anchor</button></Tooltip></div>)
+    fireEvent.mouseEnter(screen.getByText('anchor'))
+    expect(screen.getByRole('tooltip')).toBeTruthy()
+    fireEvent.scroll(screen.getByTestId('transcript'))
+    expect(screen.queryByRole('tooltip')).toBeNull()
   })
 
   it('reclamps after label and viewport width changes', () => {

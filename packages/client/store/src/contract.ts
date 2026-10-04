@@ -13,9 +13,7 @@ export interface ObservableSnapshot<T> {
 }
 
 /**
- * Typed selector hook over a snapshot source. Canonical shape for the whole
- * slot system (ui-renderer's engine hook is structurally identical; the
- * framework is the only party that ever constructs one).
+ * Typed selector hook supplied by the consumer over a snapshot source.
  */
 export type SnapshotSelectorHook<T> = <S>(sel: (s: T) => S, eq?: (a: S, b: S) => boolean) => S
 
@@ -60,12 +58,8 @@ export interface StoreSpec<T, A extends ActionsDecl<T>> {
 }
 
 /**
- * Live engine instance: the create() product consumed by the render machinery
- * and by tests. A bare snapshot source plus the baked write set — no React
- * hook rides the engine product (the engine lives in this React-free package);
- * the render machinery binds the `useStore` hook from this source on its own
- * side, cached per instance. Production components and render paths never
- * call create() themselves — instance lifecycle is the framework's.
+ * A live snapshot source with bound actions. The consumer owns instance
+ * lifetime and binds any React selector hook; the engine has no React dependency.
  */
 export interface StoreInstance<T, A extends ActionsDecl<T>> {
   readonly actions: BakedActions<T, A>
@@ -84,19 +78,14 @@ export interface StoreInstance<T, A extends ActionsDecl<T>> {
 }
 
 /**
- * Store handle: spec + state/actions types + shared identity + instance
- * factory in one value. Handles are constructed in apply world (shared across
- * registrations of one plugin) or by the framework from a registrant's
- * factory (exclusive). Never export a handle at module level — module-cache
- * identity is a disguised singleton across plugin reloads.
+ * A declaration and factory for independent store instances.
+ * Consumers that share a handle still own each instance's lifetime.
  */
 export interface StoreHandle<T, A extends ActionsDecl<T>> {
   readonly spec: StoreSpec<T, A>
   /**
-   * Create a live engine instance (framework machinery and tests only).
-   * @param scopeKey - session id for session-scope instances; suffixes the
-   * persist key so per-session instances persist independently (root-scope
-   * instances omit it).
+   * Create a live engine instance.
+   * @param scopeKey - optional persistence-key suffix; omit to use the declaration's key.
    * @returns a fresh instance seeded from `spec.init()`.
    */
   create(scopeKey?: string): StoreInstance<T, A>

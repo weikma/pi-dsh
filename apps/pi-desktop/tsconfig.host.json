@@ -1,0 +1,25 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": [
+      "ES2023",
+      "DOM"
+    ],
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "*.ts",
+    "bridge/**/*.ts",
+    "runtime/**/*.ts",
+    "tests/**/*.ts"
+  ],
+  "exclude": [
+    "client",
+    "runtime/pi-auxiliary.ts",
+    "runtime/pi-session-controls.ts",
+    "vitest.config.ts",
+    "vite.config.ts"
+  ]
+}

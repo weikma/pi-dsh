@@ -1,0 +1,43 @@
+/* DSH's compact project/chat rows and header search, using the retained visual tokens. */
+.browser { display: flex; flex-direction: column; flex: 1; min-height: 0; min-width: 0; }
+.heading { display: flex; align-items: center; gap: 2px; height: 34px; flex: none; margin-bottom: 12px; padding: 0 4px; }
+.headingTitle { flex: 1; min-width: 0; color: var(--dsw-alias-label-secondary); font-size: calc(13px + var(--dsw-ui-font-delta, 0px)); line-height: calc(20px + var(--dsw-ui-font-delta, 0px)); }
+.heading > span:has(input) { flex: 1; min-width: 0; }
+.search { min-width: 0; font-size: calc(13px + var(--dsw-ui-font-delta, 0px)); }
+.groups { flex: 1; overflow: auto; min-height: 0; padding: 0 2px 8px; }
+.group + .group { margin-top: 10px; }
+.projectRow, .chatRow { position: relative; display: flex; align-items: center; min-width: 0; border-radius: var(--dsw-radius-md); padding: 0 6px; color: var(--dsw-alias-label-primary); }
+.projectRow { height: 34px; gap: 4px; }
+.chatRow { height: 32px; padding-left: 26px; }
+.projectRow:hover, .chatRow:hover, .selected { background: var(--dsw-alias-interactive-bg-hover); }
+.projectButton, .chatButton { display: flex; align-items: center; gap: 6px; flex: 1; height: 100%; min-width: 0; padding: 0; border: none; background: transparent; color: inherit; cursor: pointer; text-align: left; }
+.title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: calc(14px + var(--dsw-ui-font-delta, 0px)); line-height: calc(20px + var(--dsw-ui-font-delta, 0px)); }
+.leading { display: flex; align-items: center; justify-content: center; width: 16px; flex: none; color: var(--dsw-alias-label-secondary); }
+.currentProject .folder { color: var(--dsw-alias-state-business-primary); }
+.chevron { display: none; transition: transform 300ms ease-in-out; }
+.closed { transform: rotate(-90deg); }
+.projectRow:hover .folder, .projectRow:focus-within .folder { display: none; }
+.projectRow:hover .chevron, .projectRow:focus-within .chevron { display: block; }
+.iconButton { display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: none; border-radius: var(--dsw-radius-sm); background: transparent; color: var(--dsw-alias-label-secondary); cursor: pointer; flex: none; }
+.iconButton:hover { color: var(--dsw-alias-label-primary); background: var(--dsw-alias-interactive-bg-hover); }
+.actions { display: flex; align-items: center; gap: 2px; flex: none; opacity: 0; pointer-events: none; }
+.projectRow:hover .actions, .projectRow:focus-within .actions, .chatRow:hover .actions, .chatRow:focus-within .actions, .actionsOpen { opacity: 1; pointer-events: auto; }
+.chatActions { position: absolute; right: 6px; }
+.date { flex: none; color: var(--dsw-alias-label-secondary); font-size: calc(11px + var(--dsw-ui-font-delta, 0px)); white-space: nowrap; margin-left: 8px; }
+.chatRow:hover .date, .chatRow:focus-within .date, .chatRow:has(.actionsOpen) .date { display: none; }
+.chatRow:hover .chatButton, .chatRow:focus-within .chatButton, .chatRow:has(.actionsOpen) .chatButton { padding-right: 80px; }
+.pin { color: var(--dsw-alias-label-secondary); flex: none; }
+.unread { width: 7px; height: 7px; flex: none; border-radius: 50%; background: var(--dsw-alias-state-business-primary); }
+.empty { margin: 6px 8px 8px 26px; color: var(--dsw-alias-label-secondary); font-size: calc(12px + var(--dsw-ui-font-delta, 0px)); line-height: calc(20px + var(--dsw-ui-font-delta, 0px)); }
+.explanation { margin: 8px 0; color: var(--dsw-alias-label-secondary); font-size: calc(13px + var(--dsw-ui-font-delta, 0px)); line-height: calc(20px + var(--dsw-ui-font-delta, 0px)); }
+@media (hover: none) { .actions { opacity: 1; pointer-events: auto; } .chatActions { position: static; } .date { display: none; } .chatRow .chatButton { padding-right: 0; } }
+
+.skeletons { padding: 8px 0 0 20px; display: grid; gap: 12px; }
+.skeletons span { height: 18px; width: 75%; border-radius: var(--dsw-radius-sm); background: var(--dsw-alias-interactive-bg-hover); }
+.skeletons span:nth-child(2) { width: 55%; }
+
+/* Keep natural content height available when reversing an unfinished disclosure. */
+.disclosure { display: grid; grid-template-rows: 1fr; opacity: 1; visibility: visible; transition: grid-template-rows 300ms ease-in-out, opacity 300ms ease-in-out, visibility 0s; }
+.disclosureClosed { grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows 300ms ease-in-out, opacity 300ms ease-in-out, visibility 0s 300ms; }
+.chats { min-height: 0; overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .disclosure, .chevron { transition: none; } }

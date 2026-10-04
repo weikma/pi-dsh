@@ -1,7 +1,5 @@
-# Bilingual-pair consistency record for CONTRIBUTING.md (docs/i18n/README.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
-# After editing either side, bring the other along and re-record with:
-#   pnpm run verify-translation-pairing --write CONTRIBUTING.md
-/contributing:
-  en: 08d2f421ff3617f4
-  zh: 9d060d70ad186dc5
+{
+  "format": "pi-desktop-pair-v1",
+  "en": "4f71dd8bb512669d5e5596249217fa87e799d7d8e6faa45f3a7022a9de9d660d",
+  "zh": "eb03beef8cb964371a36012ca0b31e59fd3e4844e7e12b700f9541e6ca1b2901"
+}

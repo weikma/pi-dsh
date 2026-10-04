@@ -113,7 +113,7 @@
 }
 
 .markdown li::marker {
-  line-height: 24px;
+  line-height: calc(24px + var(--dsw-ui-font-delta, 0px));
   color: var(--dsw-alias-label-secondary);
 }
 
@@ -271,7 +271,7 @@
 }
 
 .tableScroll table code {
-  font-size: 11px;
+  font-size: calc(11px + var(--dsw-ui-font-delta, 0px));
 }
 
 .markdown > *:first-child,
@@ -462,6 +462,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--dsw-alias-label-secondary);
-  font-size: 12px;
-  line-height: 18px;
+  font-size: calc(12px + var(--dsw-ui-font-delta, 0px));
+  line-height: calc(18px + var(--dsw-ui-font-delta, 0px));
 }

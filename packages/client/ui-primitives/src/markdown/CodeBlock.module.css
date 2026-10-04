@@ -6,9 +6,9 @@
   --dsl-code-block-border-radius: var(--dsw-radius-lg);
   /* Local 11/18 instead of the shared --dsw-font-xs-13: the banner scales
      with the markdown 0.875 ladder without shrinking every other xs-13 use. */
-  --dsl-code-block-banner-font: 11px/18px var(--dsw-font-family);
+  --dsl-code-block-banner-font: calc(11px + var(--dsw-ui-font-delta, 0px))/calc(18px + var(--dsw-ui-font-delta, 0px)) var(--dsw-font-family);
   --dsl-code-block-content-font: var(--dsw-font-markdown-code-block);
-  --dsl-code-block-background: var(--dsw-alias-markdown-code-block);
+  --dsl-code-block-background: var(--dsw-code-background, var(--dsw-alias-markdown-code-block));
 
   position: relative;
   margin: 16px 0;
@@ -45,8 +45,8 @@
 .infostring {
   color: var(--dsw-alias-label-primary);
   font-family: var(--ds-font-family-code);
-  font-size: 11px;
-  line-height: 18px;
+  font-size: calc(11px + var(--dsw-ui-font-delta, 0px));
+  line-height: calc(18px + var(--dsw-ui-font-delta, 0px));
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -101,7 +101,7 @@
 }
 
 .plain {
-  color: var(--dsw-alias-label-primary);
+  color: var(--dsw-code-foreground, var(--dsw-alias-label-primary));
 }
 
 .card :where(pre) {
@@ -110,11 +110,11 @@
   overflow-wrap: anywhere;
 }
 
-.card[data-code-wrap='false'] {
+.block[data-code-wrap='false'] {
   --dsl-code-block-line-white-space: pre;
 }
 
-.card[data-code-wrap='false'] :where(pre) {
+.block[data-code-wrap='false'] :where(pre) {
   white-space: pre;
   overflow-wrap: normal;
 }
@@ -138,7 +138,7 @@
   position: absolute;
   inset-inline-start: 0;
   width: var(--dsl-code-block-line-number-width);
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--dsw-code-gutter, var(--dsw-alias-label-tertiary));
   text-align: end;
   content: counter(source-line);
   user-select: none;

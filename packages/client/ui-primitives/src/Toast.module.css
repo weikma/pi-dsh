@@ -28,8 +28,8 @@
      fixed instead of flipping with the theme. */
   background: var(--dsw-alias-toast-bg);
   color: var(--dsw-alias-toast-label);
-  font-size: 14px;
-  line-height: 22px;
+  font-size: calc(14px + var(--dsw-ui-font-delta, 0px));
+  line-height: calc(22px + var(--dsw-ui-font-delta, 0px));
   box-shadow: var(--dsw-shadow-lv3);
   transform: translateX(-50%);
   animation:

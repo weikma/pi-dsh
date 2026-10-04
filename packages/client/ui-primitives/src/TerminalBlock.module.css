@@ -1,6 +1,6 @@
 .block {
   --dsl-terminal-radius: var(--dsw-radius-lg);
-  --dsl-terminal-line-height: 22px;
+  --dsl-terminal-line-height: calc(22px + var(--dsw-ui-font-delta, 0px));
   /* Rebindable by consumers (CodeBlock's --dsl-code-block-content-font
      pattern): a surface wanting the smaller code size rebinds this together
      with --dsl-terminal-line-height on its own container. */

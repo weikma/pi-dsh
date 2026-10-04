@@ -6,7 +6,7 @@
   justify-content: flex-end;
   min-width: 0;
   overflow: hidden;
-  font-size: 12px;
+  font-size: calc(12px + var(--dsw-ui-font-delta, 0px));
   white-space: nowrap;
 }
 

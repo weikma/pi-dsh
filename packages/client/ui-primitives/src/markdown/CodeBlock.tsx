@@ -8,6 +8,8 @@ import {
 } from './highlight.ts'
 import type { HighlightSpan, StreamingHighlightFrame } from './highlight.ts'
 import { useViewportHighlighting } from './useViewportHighlighting.ts'
+import { useCodeAppearance } from '../CodeAppearance.tsx'
+import { codeThemeStyle } from '../code-themes.ts'
 import css from './CodeBlock.module.css'
 
 export interface CodeBlockProps {
@@ -50,7 +52,7 @@ export interface CodeBlockProps {
  */
 const SHIKI_PRE_PROPS = {
   className: 'shiki css-variables',
-  style: { backgroundColor: 'var(--shiki-background)', color: 'var(--shiki-foreground)' },
+  style: { backgroundColor: 'var(--dsw-code-background, var(--shiki-background))', color: 'var(--dsw-code-foreground, var(--shiki-foreground))' },
   tabIndex: 0,
 } as const
 
@@ -69,8 +71,12 @@ function renderLine(line: readonly HighlightSpan[], index: number): ReactNode {
 }
 
 export function CodeBlock({
-  code, lang, streaming, className, contentRef, lineNumbers = false, showHeader = true, copyLabel, copiedLabel, toolbarLabels, wrap,
+  code, lang, streaming, className, contentRef, lineNumbers: explicitLineNumbers, showHeader = true, copyLabel, copiedLabel, toolbarLabels, wrap,
 }: CodeBlockProps) {
+  const appearance = useCodeAppearance()
+  const theme = appearance?.theme ?? 'css-variables'
+  const lineNumbers = explicitLineNumbers ?? appearance?.lineNumbers ?? false
+  const preferredWrap = wrap ?? appearance?.wrap
   const trimmed = code.endsWith('\n') ? code.slice(0, -1) : code
   const sourceLines = lineNumbers ? trimmed.split('\n') : undefined
   const rootRef = useRef<HTMLDivElement>(null)
@@ -82,10 +88,12 @@ export function CodeBlock({
   // Streaming state lives in refs mutated inside the memo (the MarkdownText
   // streaming-cache pattern): the session's caches carry across chunks only
   // because the owner keys this instance stably while the fence grows.
+  const sessionThemeRef = useRef(theme)
   const sessionRef = useRef<StreamingHighlightSession | null>(null)
   const lineCacheRef = useRef<{
     code: string
     lang: string | undefined
+    theme: string
     generation: number
     frame: StreamingHighlightFrame
     groups: ReactNode[]
@@ -95,6 +103,11 @@ export function CodeBlock({
   } | null>(null)
   const settledRef = useRef(false)
   const streamedBody = useMemo(() => {
+    if (sessionThemeRef.current !== theme) {
+      sessionThemeRef.current = theme
+      sessionRef.current = null
+      lineCacheRef.current = null
+    }
     if (!highlighting) {
       sessionRef.current = null
       lineCacheRef.current = null
@@ -103,7 +116,7 @@ export function CodeBlock({
     }
     if (streaming !== true) {
       const previous = lineCacheRef.current
-      if (previous !== null && previous.code === trimmed && previous.lang === lang) {
+      if (previous !== null && previous.code === trimmed && previous.lang === lang && previous.theme === theme) {
         settledRef.current = true
         return previous.body
       }
@@ -117,14 +130,14 @@ export function CodeBlock({
       lineCacheRef.current = null
       settledRef.current = false
     }
-    sessionRef.current ??= new StreamingHighlightSession()
+    sessionRef.current ??= new StreamingHighlightSession(theme)
     const frame = sessionRef.current.updateFrame(trimmed, lang)
     if (frame === undefined) {
       lineCacheRef.current = null
       return undefined
     }
     const previous = lineCacheRef.current
-    if (previous?.frame === frame && previous.code === trimmed && previous.lang === lang) {
+    if (previous?.frame === frame && previous.code === trimmed && previous.lang === lang && previous.theme === theme) {
       return previous.body
     }
     const sameGeneration = previous?.generation === frame.generation
@@ -143,19 +156,19 @@ export function CodeBlock({
     const tailGroup = <Fragment key={nextLine - pending.length}>{[...pending, ...tail]}</Fragment>
     const body = <pre {...SHIKI_PRE_PROPS}><code>{groups}{tailGroup}</code></pre>
     lineCacheRef.current = {
-      code: trimmed, lang, generation: frame.generation, frame, groups, pending, nextLine, body,
+      code: trimmed, lang, theme, generation: frame.generation, frame, groups, pending, nextLine, body,
     }
     return body
-  }, [streaming, highlighting, trimmed, lang, loaded])
+  }, [streaming, highlighting, trimmed, lang, loaded, theme])
   const html = useMemo(
     () => (highlighting && streaming !== true && streamedBody === undefined
-      ? highlightToHtml(trimmed, lang)
+      ? highlightToHtml(trimmed, lang, theme)
       : undefined),
-    [streaming, highlighting, streamedBody, trimmed, lang, loaded],
+    [streaming, highlighting, streamedBody, trimmed, lang, loaded, theme],
   )
   const [copied, setCopied] = useState(false)
   const [localWrapped, setWrapped] = useState(true)
-  const wrapped = wrap ?? localWrapped
+  const wrapped = preferredWrap ?? localWrapped
 
   const onCopy = useCallback(() => {
     if (copied) return
@@ -187,16 +200,16 @@ export function CodeBlock({
   return (
     <div ref={rootRef} className={clsx(css.block, 'md-code-block', lineNumbers && css.numbered, toolbarLabels !== undefined && css.card, className)}
       data-line-numbers={lineNumbers || undefined}
-      data-code-wrap={toolbarLabels === undefined ? undefined : wrapped}
-      style={sourceLines === undefined ? undefined : {
+      data-code-wrap={wrapped} data-code-theme={theme}
+      style={{ ...codeThemeStyle(theme), ...(sourceLines === undefined ? {} : {
         '--dsl-code-block-line-number-width': `${Math.max(2, String(sourceLines.length).length)}ch`,
-      } as CSSProperties}>
+      }) } as CSSProperties}>
       {/* These paired attributes are stable semantic hooks for owner styling and DOM tests. */}
       {showHeader && <div className={css.bannerWrap}>
         {toolbarLabels !== undefined ? <CodeToolbar
           lang={lang} labels={toolbarLabels} copyLabel={copyLabel} copiedLabel={copiedLabel}
           copied={copied} wrapped={wrapped} onCopy={onCopy}
-          onWrap={wrap === undefined ? () => { setWrapped(value => !value) } : undefined}
+          onWrap={preferredWrap === undefined ? () => { setWrapped(value => !value) } : undefined}
         /> : <div className={css.banner} data-code-block-banner>
           <div className={css.infostring}>{lang ?? ''}</div>
           <div className={css.action}>

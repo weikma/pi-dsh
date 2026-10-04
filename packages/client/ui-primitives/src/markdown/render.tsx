@@ -25,7 +25,7 @@ import { normalizeUri } from 'micromark-util-sanitize-uri'
 import type { CodeToolbarLabels } from '../CodeToolbar.tsx'
 import { CodeBlock } from './CodeBlock.tsx'
 import { parseFileLink } from './file-link.ts'
-import { renderTexToReact } from './katex.tsx'
+import { TexMath } from './katex.tsx'
 import { LinkIconMedium, classifyLinkPath } from '../LinkIcon.tsx'
 import { useMarkdownDelegate } from './MarkdownDelegate.tsx'
 import { HoverCard } from '../HoverCard.tsx'
@@ -183,7 +183,7 @@ export interface MarkdownFileMentions {
  * numbering accumulated in document order while references render.
  */
 export interface MarkdownRenderContext {
-  /** Streaming arm: fences highlight incrementally as they grow; TeX (including ```math fences) stays literal until the settled pass. */
+  /** Fences highlight incrementally; formulas render as they grow with parse errors hidden until settlement. */
   readonly streaming: boolean
   /** Localized fence copy-button labels. */
   readonly labels: MarkdownLabels
@@ -336,9 +336,9 @@ function renderNode(node: Md.RootContent, key: Key, context: MarkdownRenderConte
     case 'code':
       return renderCode(node, key, context)
     case 'math':
-      return <Fragment key={key}>{renderTexToReact(node.value, true)}</Fragment>
+      return <TexMath key={key} value={node.value} displayMode streaming={context.streaming} />
     case 'inlineMath':
-      return <Fragment key={key}>{renderTexToReact(node.value, false)}</Fragment>
+      return <TexMath key={key} value={node.value} displayMode={false} streaming={context.streaming} />
     case 'list':
       return renderList(node, key, context)
     case 'listItem':
@@ -385,10 +385,9 @@ function renderCode(node: Md.Code, key: Key, context: MarkdownRenderContext): Re
   // The replaced pipeline recovered the grammar id from the hast class with
   // /language-([\w-]+)/, which truncates at the first non-word character.
   const lang = language === undefined ? undefined : /^[\w-]+/.exec(language)?.[0]
-  if (!context.streaming && lang === 'math') {
-    // ```math fences render as display TeX once settled (rehype-katex parity);
-    // its text extraction saw the code block's trailing newline.
-    return <Fragment key={key}>{renderTexToReact(`${node.value}\n`, true)}</Fragment>
+  if (lang === 'math') {
+    // Preserve the trailing newline used by the settled code-to-math projection.
+    return <TexMath key={key} value={`${node.value}\n`} displayMode streaming={context.streaming} />
   }
   return (
     <CodeBlock

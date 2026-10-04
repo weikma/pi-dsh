@@ -1,18 +1,6 @@
 {
-  "extends": "../../../tsconfig.base.client.json",
-  "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "lib/types"
-  },
+  "extends": "../../../apps/pi-desktop/tsconfig.base.json",
   "include": [
-    "src"
-  ],
-  "references": [
-    {
-      "path": "../../util/brand"
-    },
-    {
-      "path": "../ui-primitives"
-    }
+    "src/**/*"
   ]
 }

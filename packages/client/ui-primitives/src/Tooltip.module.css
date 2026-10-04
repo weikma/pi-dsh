@@ -13,8 +13,8 @@
   border-radius: var(--dsw-radius-sm);
   background: var(--dsw-alias-tooltip-bg);
   color: var(--dsw-static-neutral-bluish-00);
-  font-size: 13px;
-  line-height: 20px;
+  font-size: calc(13px + var(--dsw-ui-font-delta, 0px));
+  line-height: calc(20px + var(--dsw-ui-font-delta, 0px));
   white-space: pre-line;
   /* Unbreakable tokens (URLs, paths) must not push past max-width. */
   overflow-wrap: break-word;
@@ -30,7 +30,7 @@
 .bubble[data-has-shortcut] { padding-inline-end: 5px; }
 .bubble[data-has-shortcut]:not(:has(.label)) { padding: 3px; }
 
-.bubble[data-side='right'] {
+.bubble[data-side='right'], .bubble[data-side='left'] {
   transform: translateY(-50%);
 }
 
