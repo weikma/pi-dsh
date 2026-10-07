@@ -128,7 +128,8 @@ test('a cached descriptor without release license fields is rebuilt before file 
   };
   assert.equal(canReusePreparedPayload(previous, 'same-lock-digest'), false);
   assert.equal(canReusePreparedPayload({ ...previous, payloadRevision: 2 }, 'same-lock-digest'), false);
-  const current = { ...previous, payloadRevision: 2, pi: { ...previous.pi, licenseFile: 'licenses/pi/LICENSE' } };
+  assert.equal(canReusePreparedPayload({ ...previous, payloadRevision: 2, pi: { ...previous.pi, licenseFile: 'licenses/pi/LICENSE' } }, 'same-lock-digest'), false);
+  const current = { ...previous, payloadRevision: 3, pi: { ...previous.pi, licenseFile: 'licenses/pi/LICENSE' } };
   assert.equal(canReusePreparedPayload(current, 'same-lock-digest'), true);
   assert.equal(canReusePreparedPayload(current, 'changed-lock-digest'), false);
 });
@@ -147,6 +148,7 @@ test('prepared native payload runs official binaries and relocated POSIX wrapper
     throw error;
   }
   const manifest: BundleManifest = JSON.parse(source);
+  assert.deepEqual(manifest.pi.defaultArgs, [], 'The bundled selection must preserve native tool settings and extension tools');
   assert.deepEqual(await smokeRuntime(payload, manifest), {
     node: '24.21.0', pi: '0.99.1', pnpm: '11.7.0', ripgrep: '15.2.0', fd: '10.3.0',
   });

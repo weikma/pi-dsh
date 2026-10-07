@@ -60,6 +60,8 @@ pnpm start:desktop
 
 The built Web Host prints its loopback URL; its default port is `19388`. `PI_DSH_PORT` changes the Web Host port. Desktop starts an application-owned Host on an available port and offers **Open in Browser** from the File menu. Native packages carry the official Pi CLI and independent Node/Python resources outside ASAR; they can run without a system Node or Pi installation. Provider authentication and access still follow Pi's configuration.
 
+On Windows x64, `pnpm package:desktop:win` produces the installer in `release/` and a directly runnable `release/win-unpacked/Pi DSH.exe`. Packaging uses node-pty's shipped Node-API prebuilds. Pi retains its native tool selection: its default shell tool requires Bash, available with Git for Windows; select PowerShell through Pi's native `defaultTools` setting when Bash is unavailable. Desktop does not inject `--tools`, which would also exclude unlisted extension tools.
+
 <a id="usage"></a>
 ## Use the GUI
 
@@ -203,6 +205,10 @@ The `0.2.0-rc.5` acceptance kept Pi at `0.99.1`. Production Chrome used a copied
 For `0.2.0-rc.6`, timing-only instrumented native builds measured executable launch to the real main window's `ready-to-show` event. Three warm samples changed from 1711/1378/1632 ms to 355/335/350 ms: median 1632 → 350 ms. Fresh-home first-window samples changed from 13365 → 1882 ms with the same 582 MiB payload; first-use tool readiness still awaits background installation. A native test held a shell on an unreleased file barrier and verified keyboard input, panel shortcuts and text preview before readiness, then opened actual Pi after release. No environment cache or model request was involved. Focused startup/Host/provider/Office/shell checks and native packaging passed; two independent startup-test processes passed concurrently, and the unmodified Host failed the new startup regression as expected. These are macOS arm64 first-window measurements, excluding external model/network latency and Windows/Linux timing.
 
 Before claiming an upgrade complete, run the affected flow checks with disposable workspaces and copied native sessions. Record the source and target Pi versions, exact commands run, platform results, and any unavailable runtime, credentials, or checks. Updating `version` or `testedVersion` alone does not complete an upgrade.
+
+Windows x64 acceptance used a local `0.1.1` build with Pi `0.99.1`. `pnpm package:desktop:win` produced an unsigned NSIS installer and passed all six actual-Resources checks. `pnpm test:runtime`, `pnpm test:compat`, `pnpm typecheck`, all 692 UI tests and nine focused runtime/recovery tests passed. The unpacked executable started with isolated empty GUI/Pi homes; native Chinese input and sidebar shortcuts worked. Its Electron Host passed real PTY input/output, resize and joined close, then drove official Pi file write/read and PowerShell calls against a scripted loopback provider. The full `pnpm test` run failed context-settlement verification and was interrupted while package-operation and terminal-host checks remained pending; it is not a passing full-suite result. These checks do not establish installation through the NSIS wizard, signed distribution, or external-provider authentication.
+
+The Windows `0.1.0` release build includes these same runtime and packaging fixes. `pnpm package:desktop:win --config.directories.output=release/v0.1.0 --publish never` passed all six actual-Resources checks and produced an unsigned x64 NSIS installer with product version `0.1.0`. The unpacked application started with isolated empty GUI/Pi homes and accepted native Chinese keyboard input. Its Windows source commit is identified separately in the release notes; the original `v0.1.0` tag remains unchanged.
 
 <a id="implementation"></a>
 ## Implementation

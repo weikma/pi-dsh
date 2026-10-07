@@ -60,6 +60,8 @@ pnpm start:desktop
 
 构建后的 Web 宿主输出其回环 URL；默认端口为 `19388`。`PI_DSH_PORT` 更改 Web 宿主端口。Desktop 在可用端口启动应用自己的宿主，并在文件菜单中提供**在浏览器中打开**。原生安装包在 ASAR 外携带官方 Pi CLI 和独立 Node／Python 资源，无需系统安装 Node 或 Pi 即可运行。供应商认证及访问仍遵循 Pi 的配置。
 
+Windows x64 下运行 `pnpm package:desktop:win`，会在 `release/` 中生成安装器，以及可直接运行的 `release/win-unpacked/Pi DSH.exe`。打包使用 node-pty 自带的 Node-API 预编译文件。Pi 保留原生工具选择：默认 shell 工具需要 Bash，可通过 Git for Windows 提供；没有 Bash 时，通过 Pi 原生 `defaultTools` 设置选择 PowerShell。Desktop 不注入 `--tools`，因为它还会排除未列出的扩展工具。
+
 <a id="usage"></a>
 ## 使用 GUI
 
@@ -203,6 +205,10 @@ macOS arm64 `0.2.0-rc.4` 打包应用使用隔离的 Pi／GUI 主目录且未注
 `0.2.0-rc.6` 使用仅增加计时的原生构建，测量从可执行文件启动到真实主窗口 `ready-to-show` 事件。三次重复启动从 1711／1378／1632 毫秒变为 355／335／350 毫秒，中位数 1632 → 350 毫秒。相同 582 MiB 资源的新主目录首次显示从 13365 → 1882 毫秒；首次使用工具仍等待后台安装。原生测试让 shell 等待未释放的文件屏障，在就绪前验证键盘输入、面板快捷键和文本预览，释放后打开真实 Pi。没有缓存环境或发送模型请求。针对启动／Host／服务商／Office／shell 的检查及原生打包通过；两个独立启动测试进程并发通过，未修改 Host 按预期无法通过新启动回归。这些结果衡量 macOS arm64 主窗口显示，不包含外部模型／网络延迟或 Windows／Linux 计时。
 
 宣布升级完成前，使用临时工作区及原生会话副本运行受影响的流程检查。记录 Pi 源版本和目标版本、实际运行的精确命令、平台结果，以及缺少的运行时、凭据或检查。仅更新 `version` 或 `testedVersion` 不能完成升级。
+
+Windows x64 验收使用本地 `0.1.1` 构建及 Pi `0.99.1`。`pnpm package:desktop:win` 生成了未签名 NSIS 安装器，全部六项真实 Resources 检查通过。`pnpm test:runtime`、`pnpm test:compat`、`pnpm typecheck`、全部 692 项 UI 测试和九项针对运行时／恢复的测试通过。解包后的可执行文件使用隔离且为空的 GUI／Pi 主目录启动；原生中文输入与侧栏快捷键正常。其 Electron Host 通过真实 PTY 输入／输出、调整尺寸及完整关闭检查，并驱动官方 Pi 连接脚本控制的本地供应商，完成文件写入／读取和 PowerShell 调用。完整 `pnpm test` 运行中的上下文结算验证失败，在包操作和 terminal-host 检查仍未结束时中断，不能视为全量通过。这些检查未验证 NSIS 向导安装、签名发行或外部供应商认证。
+
+Windows `0.1.0` 发布构建包含相同的运行时及打包修复。`pnpm package:desktop:win --config.directories.output=release/v0.1.0 --publish never` 通过全部六项真实 Resources 检查，生成产品版本为 `0.1.0` 的未签名 x64 NSIS 安装器。解包后的应用使用隔离且为空的 GUI／Pi 主目录启动，并接受原生中文键盘输入。发布说明单独标明 Windows 源码提交，原有 `v0.1.0` 标签保持不变。
 
 <a id="implementation"></a>
 ## 实现

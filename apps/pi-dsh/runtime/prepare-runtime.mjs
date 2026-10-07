@@ -14,7 +14,7 @@ const run = promisify(execFile)
 const record = value => value !== null && typeof value === 'object' && !Array.isArray(value)
 const targets = ['mac-arm64', 'mac-x64', 'win-x64', 'linux-x64', 'linux-arm64']
 const digest = value => createHash('sha256').update(value).digest('hex')
-const payloadRevision = 2
+const payloadRevision = 3
 
 /** Validate exact package versions, official artifact URLs and complete target hashes. */
 export function validateBundleLock(value) {
@@ -222,10 +222,10 @@ export async function prepareRuntime({ target, output, cache = join(homedir(), '
       pi: { package: lock.pi.package, version: lock.pi.version, packageRoot: piPackageRoot, cli: `${piPackageRoot}/${cliPath(piInfo.bin.pi)}`,
         lockfile: 'pi/package-lock.json', integrity: lock.pi.integrity, gitHead: lock.pi.gitHead,
         licenseFile: 'licenses/pi/LICENSE', licenseSha256: lock.pi.license.sha256,
-        defaultArgs: windows ? ['--tools', 'read,write,edit,powershell'] : [] },
+        defaultArgs: [] },
       pnpm: { version: lock.pnpm.version, packageRoot: 'pnpm/node_modules/pnpm', cli: `pnpm/node_modules/pnpm/${cliPath(pnpmInfo.bin.pnpm)}`, integrity: lock.pnpm.integrity },
       tools, pathDirectories: ['bin', windows ? 'node' : 'node/bin'], removedOptionalPackages,
-      shellRequirements: windows ? ['Windows PowerShell (included with supported Windows)'] : ['/bin/bash or /bin/sh'],
+      shellRequirements: windows ? ['Bash for Pi defaults, or Windows PowerShell selected through native defaultTools'] : ['/bin/bash or /bin/sh'],
     }
     await wrappers(stage, manifest)
     manifest.auxiliary = await prepareAuxiliary({ target, output: stage, cache })

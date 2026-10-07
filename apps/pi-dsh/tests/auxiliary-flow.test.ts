@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 import { test } from 'node:test'
 import { PiBridge, type PiSessionHandle } from '../bridge/manager.ts'
 import { isJsonObject, type JsonObject, type PiSnapshot } from '../bridge/types.ts'
-import { nativeRuntimeTarget } from '../runtime/bundled.ts'
+import { bundledPi, nativeRuntimeTarget, readBundledRuntime } from '../runtime/bundled.ts'
 
 function waitComplete(session: PiSessionHandle, signal: AbortSignal): Promise<PiSnapshot> {
   return new Promise((complete, reject) => {
@@ -107,7 +107,8 @@ test('real Pi records bundled resource paths and creates an Office file using th
     if (!address || typeof address === 'string') throw new Error('Auxiliary fixture did not bind a TCP port')
     await writeFile(join(agentDir, 'models.json'), JSON.stringify({ providers: { fixture: { baseUrl: `http://127.0.0.1:${address.port}/v1`, api: 'openai-completions', apiKey: 'fixture-only', models: [{ id: 'auxiliary', name: 'Auxiliary fixture', reasoning: false, input: ['text'], contextWindow: 128000, maxTokens: 4096, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 } }] } } }))
     await writeFile(join(agentDir, 'settings.json'), JSON.stringify({ defaultProvider: 'fixture', defaultModel: 'auxiliary', defaultThinkingLevel: 'off', compaction: { enabled: false }, ...(process.platform === 'win32' ? { defaultTools: ['read', 'write', 'edit', 'powershell'] } : {}) }))
-    bridge = new PiBridge({ command: join(payload, manifest.node.executable), agentDir, args: [join(payload, manifest.pi.cli), '--no-extensions', '--no-prompt-templates', '--no-themes', '-e', join(payload, manifest.auxiliary.extension)], env: { PI_CODING_AGENT_DIR: agentDir, PI_CODING_AGENT_SESSION_DIR: join(agentDir, 'sessions') } })
+    const selected = bundledPi(await readBundledRuntime(payload))
+    bridge = new PiBridge({ ...selected, agentDir, args: [...selected.args, '--no-extensions', '--no-prompt-templates', '--no-themes'], env: { ...selected.env, PI_CODING_AGENT_DIR: agentDir, PI_CODING_AGENT_SESSION_DIR: join(agentDir, 'sessions') } })
     const session = await bridge.createSession(cwd)
     await session.command({ type: 'set_session_name', name: 'Native flow fixture' })
     completed = waitComplete(session, stopping.signal)

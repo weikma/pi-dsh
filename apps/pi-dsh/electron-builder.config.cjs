@@ -12,6 +12,8 @@ module.exports = {
   directories: { app: 'apps/pi-dsh', output: 'release' },
   files: ['dist/**', '!dist/provider-worker.mjs', '!dist/package-worker.mjs', '!dist/pi-session-controls.mjs', 'assets/**', 'package.json'],
   asar: true,
+  // Windows uses node-pty's shipped Node-API prebuilds without a Visual Studio rebuild.
+  npmRebuild: process.platform !== 'win32',
   asarUnpack: ['node_modules/node-pty/**'],
   extraResources: [
     { from: 'apps/pi-dsh/.pi-dsh-build/runtime/${os}-${arch}', to: 'runtime', filter: ['**/*'] },
